@@ -756,6 +756,7 @@ function openAI(service) {
 //  MAP (Leaflet + OpenStreetMap + Nominatim)
 // ─────────────────────────────────────────────
 let map, markerDep, markerDst, routeLine;
+const _geocodeCache = new Map();
 
 function makeIcon(color, label) {
   return L.divIcon({
@@ -780,13 +781,26 @@ function initMap() {
 }
 
 async function geocode(name) {
+  if (_geocodeCache.has(name)) return _geocodeCache.get(name);
   try {
-    const r = await fetch('https://nominatim.openstreetmap.org/search?' +
-      new URLSearchParams({ q: name + ' 日本', format: 'json', limit: '1', 'accept-language': 'ja' }));
+    const params = new URLSearchParams({
+      q: name,
+      format: 'json',
+      limit: '1',
+      'accept-language': 'ja',
+      countrycodes: 'jp'
+    });
+    const r = await fetch('https://nominatim.openstreetmap.org/search?' + params);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
-    if (d.length) return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
-  } catch (_) {}
-  return null;
+    const ll = d.length ? [parseFloat(d[0].lat), parseFloat(d[0].lon)] : null;
+    if (!ll) console.warn('[map] geocode: no result for', name);
+    _geocodeCache.set(name, ll);
+    return ll;
+  } catch (e) {
+    console.error('[map] geocode error for', name, e);
+    return null;
+  }
 }
 
 async function updateMap() {
@@ -795,25 +809,29 @@ async function updateMap() {
   const dst = getVal('dst');
   if (!dep && !dst) return;
 
-  const [depLL, dstLL] = await Promise.all([
-    dep ? geocode(dep) : Promise.resolve(null),
-    dst ? geocode(dst) : Promise.resolve(null)
-  ]);
+  // Nominatim enforces 1 req/sec — send requests sequentially.
+  // Check cache BEFORE fetching so we know if a real HTTP request will be made.
+  const needDepFetch = dep && !_geocodeCache.has(dep);
+  const needDstFetch = dst && !_geocodeCache.has(dst);
+  const depLL = dep ? await geocode(dep) : null;
+  if (needDepFetch && needDstFetch) {
+    await new Promise(r => setTimeout(r, 1100));
+  }
+  const dstLL = dst ? await geocode(dst) : null;
+
+  console.log('[map] dep:', dep, depLL, '| dst:', dst, dstLL);
 
   if (markerDep) { map.removeLayer(markerDep); markerDep = null; }
   if (markerDst) { map.removeLayer(markerDst); markerDst = null; }
   if (routeLine)  { map.removeLayer(routeLine);  routeLine  = null; }
 
-  const bounds = [];
   if (depLL) {
     markerDep = L.marker(depLL, { icon: makeIcon('#ff5f15', '🚀') })
       .addTo(map).bindPopup('<b>出発地</b><br>' + dep);
-    bounds.push(depLL);
   }
   if (dstLL) {
     markerDst = L.marker(dstLL, { icon: makeIcon('#22c55e', '🏁') })
       .addTo(map).bindPopup('<b>目的地</b><br>' + dst);
-    bounds.push(dstLL);
   }
 
   if (depLL && dstLL) {
@@ -824,8 +842,10 @@ async function updateMap() {
       dashArray: '8, 6'
     }).addTo(map);
     map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-  } else if (bounds.length === 1) {
-    map.setView(bounds[0], 10);
+  } else if (depLL) {
+    map.setView(depLL, 10);
+  } else if (dstLL) {
+    map.setView(dstLL, 10);
   }
 }
 
