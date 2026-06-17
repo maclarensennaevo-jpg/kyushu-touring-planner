@@ -189,7 +189,7 @@
       margin-bottom: 22px;
     }
 
-    /* ── OPTION GRID (2-col, for many options) ── */
+    /* ── OPTION GRID (2-col) ── */
     .opt-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -231,7 +231,7 @@
     .opt-label { font-size: 14px; font-weight: 800; line-height: 1.25; }
     .opt-note  { font-size: 11px; color: var(--muted); line-height: 1.4; }
 
-    /* ── OPTION STACK (full-width, for 2-3 options) ── */
+    /* ── OPTION STACK (full-width) ── */
     .opt-stack {
       display: flex;
       flex-direction: column;
@@ -258,6 +258,49 @@
     }
     .opt-stack .opt-btn.selected .opt-check { opacity: 1; }
 
+    /* ── DEST CUSTOM INPUT ── */
+    .dest-custom-wrap {
+      display: none;
+      margin-top: 14px;
+    }
+    .dest-custom-wrap.show { display: block; }
+    .dest-custom-input {
+      width: 100%;
+      background: var(--bg2);
+      border: 2px solid var(--accent);
+      border-radius: var(--rs);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      padding: 13px 14px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      transition: box-shadow .2s;
+    }
+    .dest-custom-input:focus {
+      box-shadow: 0 0 0 3px rgba(255,95,21,.2);
+    }
+    .dest-next-btn {
+      display: none;
+      width: 100%;
+      margin-top: 10px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--rs);
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px;
+      cursor: pointer;
+      transition: filter .2s, transform .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dest-next-btn.show { display: block; }
+    .dest-next-btn:hover  { filter: brightness(1.1); }
+    .dest-next-btn:active { transform: scale(0.97); }
+
     /* ── SUMMARY CARD ── */
     .summary-card {
       background: var(--card);
@@ -281,14 +324,14 @@
     .summary-row {
       display: flex;
       align-items: center;
-      padding: 13px 18px;
+      padding: 12px 18px;
       border-bottom: 1px solid var(--border);
       gap: 12px;
     }
     .summary-row:last-child { border-bottom: none; }
     .sum-icon  { font-size: 18px; flex-shrink: 0; }
     .sum-label { font-size: 12px; color: var(--muted); font-weight: 600; width: 82px; flex-shrink: 0; }
-    .sum-value { font-size: 15px; font-weight: 700; color: var(--accent-lt); }
+    .sum-value { font-size: 14px; font-weight: 700; color: var(--accent-lt); }
 
     /* ── AI BUTTONS ── */
     .btn-ai-group {
@@ -488,7 +531,7 @@
 <!-- PROGRESS -->
 <div class="progress-wrap">
   <div class="progress-top">
-    <span class="step-counter" id="stepCounter">STEP 1 / 5</span>
+    <span class="step-counter" id="stepCounter">STEP 1 / 6</span>
     <div class="progress-track">
       <div class="progress-fill" id="progressFill"></div>
     </div>
@@ -499,6 +542,7 @@
     <div class="step-dot" data-n="3"></div>
     <div class="step-dot" data-n="4"></div>
     <div class="step-dot" data-n="5"></div>
+    <div class="step-dot" data-n="6"></div>
   </div>
 </div>
 
@@ -549,13 +593,81 @@
     </div>
   </div>
 
-  <!-- ===== STEP 2: 日程 ===== -->
+  <!-- ===== STEP 2: 目的地エリア ===== -->
   <div class="step-card" id="step2">
     <div class="step-tag">STEP 2</div>
+    <h2 class="step-question">目的地エリアを選ぶ</h2>
+    <p class="step-sub">どのエリアへ向かいますか？</p>
+    <div class="opt-grid" id="destGrid">
+      <button class="opt-btn" onclick="pick(2,'阿蘇・九重',this)">
+        <span class="opt-icon">🏔️</span>
+        <span class="opt-label">阿蘇・九重</span>
+        <span class="opt-note">やまなみハイウェイ</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'天草・島原',this)">
+        <span class="opt-icon">🌊</span>
+        <span class="opt-label">天草・島原</span>
+        <span class="opt-note">天草五橋・雲仙</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'由布院・別府',this)">
+        <span class="opt-icon">♨️</span>
+        <span class="opt-label">由布院・別府</span>
+        <span class="opt-note">温泉とやまなみ</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'指宿・霧島',this)">
+        <span class="opt-icon">🌋</span>
+        <span class="opt-label">指宿・霧島</span>
+        <span class="opt-note">砂むし温泉・えびの高原</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'大隅・佐多岬',this)">
+        <span class="opt-icon">🗺️</span>
+        <span class="opt-label">大隅・佐多岬</span>
+        <span class="opt-note">九州最南端の岬</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'雲仙・長崎市内',this)">
+        <span class="opt-icon">🦋</span>
+        <span class="opt-label">雲仙・長崎市内</span>
+        <span class="opt-note">島原半島・グラバー園</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'高千穂・延岡',this)">
+        <span class="opt-icon">🌄</span>
+        <span class="opt-label">高千穂・延岡</span>
+        <span class="opt-note">高千穂峡・神話の里</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'宮崎市・日南',this)">
+        <span class="opt-icon">🌴</span>
+        <span class="opt-label">宮崎市・日南</span>
+        <span class="opt-note">日南海岸・フェニックスロード</span>
+      </button>
+      <button class="opt-btn" onclick="pick(2,'糸島・唐津',this)">
+        <span class="opt-icon">🏖️</span>
+        <span class="opt-label">糸島・唐津</span>
+        <span class="opt-note">玄海灘・虹の松原</span>
+      </button>
+      <button class="opt-btn" id="destOtherBtn" onclick="pickDestOther(this)">
+        <span class="opt-icon">✏️</span>
+        <span class="opt-label">その他</span>
+        <span class="opt-note">自由に入力する</span>
+      </button>
+    </div>
+    <!-- カスタム入力（「その他」選択時に表示） -->
+    <div class="dest-custom-wrap" id="destCustomWrap">
+      <input class="dest-custom-input" type="text" id="destCustomInput"
+             placeholder="目的地エリアを入力…（例：平戸島、五島列島）"
+             oninput="onDestCustomInput()">
+      <button class="dest-next-btn" id="destNextBtn" onclick="confirmCustomDest()">
+        次へ →
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3: 日程 ===== -->
+  <div class="step-card" id="step3">
+    <div class="step-tag">STEP 3</div>
     <h2 class="step-question">日程を選ぶ</h2>
     <p class="step-sub">何日間のツーリングを予定していますか？</p>
     <div class="opt-stack">
-      <button class="opt-btn" onclick="pick(2,'日帰り',this)">
+      <button class="opt-btn" onclick="pick(3,'日帰り',this)">
         <span class="opt-icon">☀️</span>
         <div class="opt-text">
           <span class="opt-label">日帰り</span>
@@ -563,7 +675,7 @@
         </div>
         <span class="opt-check">✓</span>
       </button>
-      <button class="opt-btn" onclick="pick(2,'1泊2日',this)">
+      <button class="opt-btn" onclick="pick(3,'1泊2日',this)">
         <span class="opt-icon">🌙</span>
         <div class="opt-text">
           <span class="opt-label">1泊2日</span>
@@ -571,7 +683,7 @@
         </div>
         <span class="opt-check">✓</span>
       </button>
-      <button class="opt-btn" onclick="pick(2,'2泊3日',this)">
+      <button class="opt-btn" onclick="pick(3,'2泊3日',this)">
         <span class="opt-icon">⛺</span>
         <div class="opt-text">
           <span class="opt-label">2泊3日</span>
@@ -582,33 +694,33 @@
     </div>
   </div>
 
-  <!-- ===== STEP 3: テーマ ===== -->
-  <div class="step-card" id="step3">
-    <div class="step-tag">STEP 3</div>
+  <!-- ===== STEP 4: テーマ ===== -->
+  <div class="step-card" id="step4">
+    <div class="step-tag">STEP 4</div>
     <h2 class="step-question">テーマを選ぶ</h2>
     <p class="step-sub">このツーリングで一番楽しみたいことは？</p>
     <div class="opt-grid">
-      <button class="opt-btn" onclick="pick(3,'海沿い',this)">
+      <button class="opt-btn" onclick="pick(4,'海沿い',this)">
         <span class="opt-icon">🌊</span>
         <span class="opt-label">海沿い</span>
         <span class="opt-note">絶景海道を疾走</span>
       </button>
-      <button class="opt-btn" onclick="pick(3,'山・峠',this)">
+      <button class="opt-btn" onclick="pick(4,'山・峠',this)">
         <span class="opt-icon">🏔️</span>
         <span class="opt-label">山・峠</span>
         <span class="opt-note">ワインディングを攻める</span>
       </button>
-      <button class="opt-btn" onclick="pick(3,'グルメ',this)">
+      <button class="opt-btn" onclick="pick(4,'グルメ',this)">
         <span class="opt-icon">🍜</span>
         <span class="opt-label">グルメ</span>
         <span class="opt-note">名物料理を食べ歩き</span>
       </button>
-      <button class="opt-btn" onclick="pick(3,'温泉',this)">
+      <button class="opt-btn" onclick="pick(4,'温泉',this)">
         <span class="opt-icon">♨️</span>
         <span class="opt-label">温泉</span>
         <span class="opt-note">名湯でゆっくり癒やし</span>
       </button>
-      <button class="opt-btn span2" onclick="pick(3,'神社仏閣',this)">
+      <button class="opt-btn span2" onclick="pick(4,'神社仏閣',this)">
         <span class="opt-icon">⛩️</span>
         <span class="opt-label">神社仏閣</span>
         <span class="opt-note">歴史とパワースポット巡り</span>
@@ -616,13 +728,13 @@
     </div>
   </div>
 
-  <!-- ===== STEP 4: 距離感 ===== -->
-  <div class="step-card" id="step4">
-    <div class="step-tag">STEP 4</div>
+  <!-- ===== STEP 5: 距離感 ===== -->
+  <div class="step-card" id="step5">
+    <div class="step-tag">STEP 5</div>
     <h2 class="step-question">距離感を選ぶ</h2>
     <p class="step-sub">どのくらいの走行距離を想定していますか？</p>
     <div class="opt-stack">
-      <button class="opt-btn" onclick="pick(4,'ゆったり（100km以下）',this)">
+      <button class="opt-btn" onclick="pick(5,'ゆったり（100km以下）',this)">
         <span class="opt-icon">🐢</span>
         <div class="opt-text">
           <span class="opt-label">ゆったり 100km以下</span>
@@ -630,7 +742,7 @@
         </div>
         <span class="opt-check">✓</span>
       </button>
-      <button class="opt-btn" onclick="pick(4,'普通（100〜200km）',this)">
+      <button class="opt-btn" onclick="pick(5,'普通（100〜200km）',this)">
         <span class="opt-icon">🏍️</span>
         <div class="opt-text">
           <span class="opt-label">普通 100〜200km</span>
@@ -638,7 +750,7 @@
         </div>
         <span class="opt-check">✓</span>
       </button>
-      <button class="opt-btn" onclick="pick(4,'ロング（200km以上）',this)">
+      <button class="opt-btn" onclick="pick(5,'ロング（200km以上）',this)">
         <span class="opt-icon">🚀</span>
         <div class="opt-text">
           <span class="opt-label">ロング 200km以上</span>
@@ -649,13 +761,13 @@
     </div>
   </div>
 
-  <!-- ===== STEP 5: 同行人数 ===== -->
-  <div class="step-card" id="step5">
-    <div class="step-tag">STEP 5</div>
+  <!-- ===== STEP 6: 同行人数 ===== -->
+  <div class="step-card" id="step6">
+    <div class="step-tag">STEP 6</div>
     <h2 class="step-question">同行人数を選ぶ</h2>
     <p class="step-sub">ツーリングのスタイルは？</p>
     <div class="opt-stack">
-      <button class="opt-btn" onclick="pick(5,'ソロ',this)">
+      <button class="opt-btn" onclick="pick(6,'ソロ',this)">
         <span class="opt-icon">🧍</span>
         <div class="opt-text">
           <span class="opt-label">ソロツーリング</span>
@@ -663,7 +775,7 @@
         </div>
         <span class="opt-check">✓</span>
       </button>
-      <button class="opt-btn" onclick="pick(5,'複数台',this)">
+      <button class="opt-btn" onclick="pick(6,'複数台',this)">
         <span class="opt-icon">👥</span>
         <div class="opt-text">
           <span class="opt-label">複数台でツーリング</span>
@@ -686,6 +798,11 @@
         <span class="sum-icon">🚀</span>
         <span class="sum-label">出発地</span>
         <span class="sum-value" id="sumDep">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="sum-icon">🏁</span>
+        <span class="sum-label">目的地</span>
+        <span class="sum-value" id="sumDest">—</span>
       </div>
       <div class="summary-row">
         <span class="sum-icon">📅</span>
@@ -779,7 +896,7 @@
 
   if ('serviceWorker' in navigator) {
     const sw = `
-const C='ktp-v2';
+const C='ktp-v3';
 self.addEventListener('install',e=>self.skipWaiting());
 self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
 self.addEventListener('fetch',e=>{
@@ -796,17 +913,18 @@ self.addEventListener('fetch',e=>{
 // ─────────────────────────────────────────────
 //  WIZARD STATE
 // ─────────────────────────────────────────────
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const state = {
   dep:      null,   // 出発地
+  dest:     null,   // 目的地エリア
   schedule: null,   // 日程
   theme:    null,   // テーマ
   distance: null,   // 距離感
   party:    null,   // 同行人数
 };
 
-const STEP_KEYS = ['dep', 'schedule', 'theme', 'distance', 'party'];
+const STEP_KEYS = ['dep', 'dest', 'schedule', 'theme', 'distance', 'party'];
 
 let currentStep = 1;
 let goingBack   = false;
@@ -826,39 +944,74 @@ const DEP_COORDS = {
 //  STEP NAVIGATION
 // ─────────────────────────────────────────────
 function pick(step, value, btn) {
-  // Update state
   state[STEP_KEYS[step - 1]] = value;
 
-  // Highlight selected button briefly
+  // step2 でプリセットを選び直した場合はカスタム入力を隠す
+  if (step === 2) resetDestCustom();
+
   const allBtns = btn.closest('.opt-grid, .opt-stack').querySelectorAll('.opt-btn');
   allBtns.forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
 
-  // Auto-advance after short delay
   setTimeout(() => {
-    if (step < TOTAL_STEPS) {
-      goingBack = false;
-      showStep(step + 1);
-    } else {
-      showFinal();
-    }
+    goingBack = false;
+    if (step < TOTAL_STEPS) showStep(step + 1);
+    else showFinal();
   }, 340);
 }
 
+// 「その他」ボタン専用（自動進行しない）
+function pickDestOther(btn) {
+  const allBtns = btn.closest('.opt-grid').querySelectorAll('.opt-btn');
+  allBtns.forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('destCustomWrap').classList.add('show');
+  document.getElementById('destCustomInput').focus();
+}
+
+function onDestCustomInput() {
+  const val = document.getElementById('destCustomInput').value.trim();
+  document.getElementById('destNextBtn').classList.toggle('show', val.length > 0);
+}
+
+function confirmCustomDest() {
+  const val = document.getElementById('destCustomInput').value.trim();
+  if (!val) return;
+  state.dest = val;
+  goingBack  = false;
+  showStep(3);
+}
+
+function resetDestCustom() {
+  document.getElementById('destCustomWrap').classList.remove('show');
+  document.getElementById('destCustomInput').value = '';
+  document.getElementById('destNextBtn').classList.remove('show');
+}
+
 function goBack() {
-  if (currentStep <= 1) return;
   goingBack = true;
+  // ファイナル画面からの戻り
+  if (currentStep === 0) {
+    document.getElementById('stepFinal').classList.remove('active', 'go-back');
+    const last = document.getElementById('step' + TOTAL_STEPS);
+    if (last) { last.classList.add('active', 'go-back'); }
+    currentStep = TOTAL_STEPS;
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  if (currentStep <= 1) { goingBack = false; return; }
   showStep(currentStep - 1);
 }
 
 function showStep(n) {
-  const prev = document.getElementById(currentStep === 0 ? 'stepFinal' : 'step' + currentStep);
-  const next = document.getElementById('step' + n);
+  const prevId = currentStep === 0 ? 'stepFinal' : 'step' + currentStep;
+  const prev   = document.getElementById(prevId);
+  const next   = document.getElementById('step' + n);
   if (prev) prev.classList.remove('active', 'go-back');
   if (next) {
+    next.classList.toggle('go-back', goingBack);
     next.classList.add('active');
-    if (goingBack) next.classList.add('go-back');
-    else next.classList.remove('go-back');
   }
   currentStep = n;
   updateProgress();
@@ -866,14 +1019,11 @@ function showStep(n) {
 }
 
 function showFinal() {
-  const prev = document.getElementById('step' + TOTAL_STEPS);
+  const prev  = document.getElementById('step' + TOTAL_STEPS);
   const final = document.getElementById('stepFinal');
-  if (prev) prev.classList.remove('active', 'go-back');
-  if (final) {
-    final.classList.remove('go-back');
-    final.classList.add('active');
-  }
-  currentStep = 0; // 0 = final
+  if (prev)  prev.classList.remove('active', 'go-back');
+  if (final) { final.classList.remove('go-back'); final.classList.add('active'); }
+  currentStep = 0;
   updateProgress();
   updateSummary();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -883,23 +1033,19 @@ function updateProgress() {
   const isFinal = currentStep === 0;
   const n = isFinal ? TOTAL_STEPS : currentStep;
 
-  // Counter
   document.getElementById('stepCounter').textContent =
     isFinal ? 'COMPLETE ✓' : `STEP ${n} / ${TOTAL_STEPS}`;
 
-  // Progress bar
   const pct = isFinal ? 100 : ((n - 1) / TOTAL_STEPS) * 100;
   document.getElementById('progressFill').style.width = pct + '%';
 
-  // Dots
   document.querySelectorAll('.step-dot').forEach(dot => {
     const dn = +dot.dataset.n;
     dot.classList.remove('done', 'current');
-    if (isFinal || dn < n)      dot.classList.add('done');
-    else if (dn === n)           dot.classList.add('current');
+    if (isFinal || dn < n) dot.classList.add('done');
+    else if (dn === n)     dot.classList.add('current');
   });
 
-  // Nav bar
   const navBar = document.getElementById('navBar');
   navBar.setAttribute('data-step', isFinal ? 'final' : String(n));
   navBar.style.display = (n <= 1 && !isFinal) ? 'none' : '';
@@ -907,6 +1053,7 @@ function updateProgress() {
 
 function updateSummary() {
   document.getElementById('sumDep').textContent      = state.dep      || '—';
+  document.getElementById('sumDest').textContent     = state.dest     || '—';
   document.getElementById('sumSchedule').textContent = state.schedule || '—';
   document.getElementById('sumTheme').textContent    = state.theme    || '—';
   document.getElementById('sumDist').textContent     = state.distance || '—';
@@ -914,16 +1061,11 @@ function updateSummary() {
 }
 
 function restart() {
-  state.dep = state.schedule = state.theme = state.distance = state.party = null;
-
-  // Clear selections
+  Object.keys(state).forEach(k => state[k] = null);
   document.querySelectorAll('.opt-btn.selected').forEach(b => b.classList.remove('selected'));
-
-  // Hide final
-  document.getElementById('stepFinal').classList.remove('active');
-
-  // Show step 1
-  goingBack = true;
+  resetDestCustom();
+  document.getElementById('stepFinal').classList.remove('active', 'go-back');
+  goingBack   = true;
   currentStep = 2;
   showStep(1);
 }
@@ -932,24 +1074,25 @@ function restart() {
 //  PROMPT BUILDER
 // ─────────────────────────────────────────────
 const THEME_MAP = {
-  '海沿い':  '海岸線の絶景ルート・海道ツーリング',
-  '山・峠':  '山岳エリア・峠道・ワインディングロード',
-  'グルメ':  '九州の名物グルメ・食事処巡り',
-  '温泉':    '日帰り温泉・名湯めぐり',
+  '海沿い':   '海岸線の絶景ルート・海道ツーリング',
+  '山・峠':   '山岳エリア・峠道・ワインディングロード',
+  'グルメ':   '九州の名物グルメ・食事処巡り',
+  '温泉':     '日帰り温泉・名湯めぐり',
   '神社仏閣': '神社・仏閣・パワースポット・歴史名所',
 };
 
 function buildPrompt() {
-  const { dep, schedule, theme, distance, party } = state;
+  const { dep, dest, schedule, theme, distance, party } = state;
   const themeTxt   = THEME_MAP[theme] || theme;
   const hasOnsen   = theme === '温泉';
-  const hasGourmet = theme === '温泉' || theme === 'グルメ';
+  const hasGourmet = theme === 'グルメ' || theme === '温泉';
   const overnight  = schedule !== '日帰り';
 
   return `九州のバイクツーリングに精通した専門ガイドとして、以下の条件で詳細なツーリングプランを作成してください。実在する道路名・施設名・スポット名を具体的に挙げてください。
 
 【ツーリング条件】
 - 出発地: ${dep}県内（${dep}市または近隣の主要地点からスタート）
+- 目的地エリア: ${dest}
 - 日程: ${schedule}
 - テーマ: ${themeTxt}
 - 走行距離感: ${distance}
@@ -979,7 +1122,7 @@ ${themeTxt}に関連した具体的なスポット（施設名・場所・おす
 このルートのアレンジ案や、時間が余った場合・足りない場合の調整方法
 
 ---
-最後にルートのGoogleマップリンクをこの形式で出力してください：https://www.google.com/maps/dir/出発地/経由地/目的地`;
+最後にルートのGoogleマップリンクをこの形式で出力してください：https://www.google.com/maps/dir/${dep}/${dest}`;
 }
 
 // ─────────────────────────────────────────────
@@ -1004,12 +1147,9 @@ function openAI(service) {
 function openMaps() {
   const dep    = state.dep || '';
   const coords = DEP_COORDS[dep];
-  let url;
-  if (coords) {
-    url = `https://www.google.com/maps/search/%E9%A3%B2%E9%A3%9F%E5%BA%97/@${coords},13z`;
-  } else {
-    url = `https://www.google.com/maps/search/${encodeURIComponent(dep + ' 飲食店')}`;
-  }
+  const url    = coords
+    ? `https://www.google.com/maps/search/%E9%A3%B2%E9%A3%9F%E5%BA%97/@${coords},13z`
+    : `https://www.google.com/maps/search/${encodeURIComponent(dep + ' 飲食店')}`;
   window.open(url, '_blank', 'noopener');
   showToast('Googleマップを開きました');
 }
