@@ -782,23 +782,24 @@ function initMap() {
 
 async function geocode(name) {
   if (_geocodeCache.has(name)) return _geocodeCache.get(name);
+  // 「指宿・薩摩半島」→「指宿」のように「・」以降を除去して主要地名だけ使う
+  const query = name.split('・')[0].trim() + ', Japan';
   try {
     const params = new URLSearchParams({
-      q: name,
+      q: query,
       format: 'json',
       limit: '1',
-      'accept-language': 'ja',
-      countrycodes: 'jp'
+      'accept-language': 'ja'
     });
     const r = await fetch('https://nominatim.openstreetmap.org/search?' + params);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     const ll = d.length ? [parseFloat(d[0].lat), parseFloat(d[0].lon)] : null;
-    if (!ll) console.warn('[map] geocode: no result for', name);
+    if (!ll) console.warn('[map] geocode: no result for', query);
     _geocodeCache.set(name, ll);
     return ll;
   } catch (e) {
-    console.error('[map] geocode error for', name, e);
+    console.error('[map] geocode error for', query, e);
     return null;
   }
 }
