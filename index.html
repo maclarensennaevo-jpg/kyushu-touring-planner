@@ -756,6 +756,57 @@ function openAI(service) {
 //  MAP (Leaflet + OpenStreetMap + Nominatim)
 // ─────────────────────────────────────────────
 let map, markerDep, markerDst, routeLine;
+
+// 選択肢の全地点に対応する事前定義座標
+// カスタム入力のみNominatimにフォールバック
+const PLACE_COORDS = {
+  // ── 出発地 ──
+  '福岡市':   [33.5902, 130.4017],
+  '北九州市': [33.8834, 130.8751],
+  '久留米市': [33.3192, 130.5081],
+  '飯塚市':   [33.6458, 130.6908],
+  '佐賀市':   [33.2493, 130.2988],
+  '唐津市':   [33.4499, 129.9688],
+  '長崎市':   [32.7503, 129.8777],
+  '佐世保市': [33.1592, 129.7155],
+  '島原市':   [32.7897, 130.3712],
+  '熊本市':   [32.8031, 130.7079],
+  '阿蘇市':   [32.8845, 131.1036],
+  '天草市':   [32.4597, 130.1957],
+  '大分市':   [33.2382, 131.6126],
+  '別府市':   [33.2844, 131.4913],
+  '由布院':   [33.2625, 131.3649],
+  '宮崎市':   [31.9077, 131.4202],
+  '延岡市':   [32.5827, 131.6627],
+  '都城市':   [31.7196, 131.0638],
+  '鹿児島市': [31.5966, 130.5571],
+  '指宿市':   [31.2529, 130.6388],
+  '霧島市':   [31.7404, 130.7630],
+  // ── 目的地：絶景・ドライブ ──
+  '阿蘇山周辺':               [32.8845, 131.1036],
+  'やまなみハイウェイ':        [33.0854, 131.1808], // 牧ノ戸峠
+  '由布岳・由布院':            [33.2625, 131.3649],
+  '雲仙・島原半島':            [32.7606, 130.2651],
+  '天草諸島':                 [32.4597, 130.1957],
+  '日南海岸・フェニックスロード': [31.7877, 131.4670], // 青島周辺
+  '指宿・薩摩半島':            [31.2529, 130.6388],
+  '霧島高原':                 [31.9348, 130.8611], // えびの高原
+  '五島列島':                 [32.6980, 128.8400],
+  // ── 目的地：温泉地 ──
+  '別府温泉郷': [33.2844, 131.4913],
+  '湯布院温泉': [33.2625, 131.3649],
+  '黒川温泉':   [33.0598, 131.0731],
+  '雲仙温泉':   [32.7606, 130.2651],
+  '指宿温泉':   [31.2529, 130.6388],
+  '霧島温泉':   [31.9020, 130.8680],
+  // ── 目的地：歴史・文化 ──
+  '長崎市内・グラバー園': [32.7503, 129.8777],
+  '平戸島':       [33.3644, 129.5528],
+  '吉野ヶ里遺跡': [33.3233, 130.3976],
+  '熊本城周辺':   [32.8063, 130.7070],
+  '太宰府':       [33.5122, 130.5343],
+};
+
 const _geocodeCache = new Map();
 
 function makeIcon(color, label) {
@@ -780,18 +831,13 @@ function initMap() {
   }).addTo(map);
 }
 
+// カスタム入力専用。選択肢はPLACE_COORDSを使うのでここには来ない
 async function geocode(name) {
   if (_geocodeCache.has(name)) return _geocodeCache.get(name);
-  // 「指宿・薩摩半島」→「指宿」のように「・」以降を除去して主要地名だけ使う
   const query = name.split('・')[0].trim() + ', Japan';
   try {
-    const params = new URLSearchParams({
-      q: query,
-      format: 'json',
-      limit: '1',
-      'accept-language': 'ja'
-    });
-    const r = await fetch('https://nominatim.openstreetmap.org/search?' + params);
+    const r = await fetch('https://nominatim.openstreetmap.org/search?' +
+      new URLSearchParams({ q: query, format: 'json', limit: '1', 'accept-language': 'ja' }));
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     const ll = d.length ? [parseFloat(d[0].lat), parseFloat(d[0].lon)] : null;
@@ -804,23 +850,25 @@ async function geocode(name) {
   }
 }
 
+async function resolveLatLng(name) {
+  if (!name) return null;
+  if (PLACE_COORDS[name]) return PLACE_COORDS[name];   // 事前定義座標を優先
+  return await geocode(name);                           // カスタム入力のみNominatim
+}
+
 async function updateMap() {
   if (!map) return;
   const dep = getVal('dep');
   const dst = getVal('dst');
   if (!dep && !dst) return;
 
-  // Nominatim enforces 1 req/sec — send requests sequentially.
-  // Check cache BEFORE fetching so we know if a real HTTP request will be made.
-  const needDepFetch = dep && !_geocodeCache.has(dep);
-  const needDstFetch = dst && !_geocodeCache.has(dst);
-  const depLL = dep ? await geocode(dep) : null;
-  if (needDepFetch && needDstFetch) {
-    await new Promise(r => setTimeout(r, 1100));
-  }
-  const dstLL = dst ? await geocode(dst) : null;
+  // 事前定義にない場合（カスタム入力）のみ逐次フェッチ＋待機が必要
+  const needDepFetch = dep && !PLACE_COORDS[dep] && !_geocodeCache.has(dep);
+  const needDstFetch = dst && !PLACE_COORDS[dst] && !_geocodeCache.has(dst);
 
-  console.log('[map] dep:', dep, depLL, '| dst:', dst, dstLL);
+  const depLL = await resolveLatLng(dep);
+  if (needDepFetch && needDstFetch) await new Promise(r => setTimeout(r, 1100));
+  const dstLL = await resolveLatLng(dst);
 
   if (markerDep) { map.removeLayer(markerDep); markerDep = null; }
   if (markerDst) { map.removeLayer(markerDst); markerDst = null; }
