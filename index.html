@@ -723,11 +723,11 @@ const AI_SERVICES = {
     toast: 'ChatGPT を開きました'
   },
   gemini:  {
-    url:   p => 'https://gemini.google.com/app?q=' + encodeURIComponent(p),
+    url:   p => 'https://gemini.google.com/app?' + new URLSearchParams({ q: p }).toString(),
     toast: 'Gemini を開きました'
   },
   grok:    {
-    url:   () => 'https://x.com/i/grok',
+    url:   () => 'https://grok.com',
     toast: 'Grokを開きました ─ 入力欄に貼り付けてください'
   }
 };
