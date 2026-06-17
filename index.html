@@ -843,9 +843,9 @@ async function updateMap() {
     }).addTo(map);
     map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
   } else if (depLL) {
-    map.setView(depLL, 10);
+    map.setView(depLL, 13);
   } else if (dstLL) {
-    map.setView(dstLL, 10);
+    map.setView(dstLL, 13);
   }
 }
 
