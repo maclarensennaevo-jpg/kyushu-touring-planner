@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="九州ツーリング">
+  <meta name="description" content="AIが九州のバイクツーリングルートをプランニングします">
+  <link id="pwa-manifest" rel="manifest">
+  <title>九州ツーリングプランナー</title>
+
+  <style>
+    :root {
+      --bg:        #0a0a14;
+      --bg2:       #0f0f1e;
+      --card:      #141428;
+      --card2:     #1c1c38;
+      --accent:    #ff5f15;
+      --accent-lt: #ff8a50;
+      --accent2:   #ffc107;
+      --text:      #f0f0f5;
+      --muted:     #7070a0;
+      --border:    #1e1e3a;
+      --success:   #22c55e;
+      --r:         16px;
+      --rs:        8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(150deg, #100a20 0%, #0a0a14 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 20px 22px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--accent) 30%, var(--accent2) 60%, transparent 100%);
+    }
+    .header-road {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 30px;
+      opacity: 0.04;
+      background-image: repeating-linear-gradient(90deg, #fff 0 40px, transparent 40px 80px);
+    }
+    .header-icon {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 20px rgba(255,95,21,0.6));
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-4px); }
+    }
+    h1 {
+      font-size: clamp(20px, 5.5vw, 30px);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-lt) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 20px 14px 48px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 7px;
+      letter-spacing: 0.04em;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      padding: 11px 13px;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255,95,21,.15);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237070a0' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 34px;
+      cursor: pointer;
+    }
+    select option { background: var(--card2); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 420px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── RANGE ── */
+    .range-val {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    input[type="range"] {
+      padding: 0;
+      border: none;
+      height: 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      background: var(--bg);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(255,95,21,.5);
+      transition: transform .15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.25); }
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ── SEASON ── */
+    .season-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .season-btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      color: var(--muted);
+      font-size: 11px;
+      font-family: inherit;
+      padding: 10px 4px 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .season-btn .em { font-size: 22px; line-height: 1; }
+    .season-btn.active {
+      border-color: var(--accent);
+      background: rgba(255,95,21,.1);
+      color: var(--accent-lt);
+      box-shadow: 0 0 10px rgba(255,95,21,.2);
+    }
+
+    /* ── CHIPS ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 7px 13px;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--text); }
+    .chip.active {
+      border-color: var(--accent);
+      background: rgba(255,95,21,.12);
+      color: var(--accent-lt);
+    }
+
+    /* ── STYLE TOGGLE ── */
+    .toggle-group { display: flex; gap: 8px; }
+    .toggle-btn {
+      flex: 1;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 10px 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .2s;
+    }
+    .toggle-btn.active {
+      border-color: var(--accent);
+      background: rgba(255,95,21,.1);
+      color: var(--accent-lt);
+    }
+
+    /* ── GENERATE BUTTON ── */
+    .btn-gen {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent) 0%, #c44000 100%);
+      border: none;
+      border-radius: var(--r);
+      color: #fff;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 17px;
+      cursor: pointer;
+      transition: all .3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.06em;
+      box-shadow: 0 4px 20px rgba(255,95,21,.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-gen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 60%);
+    }
+    .btn-gen:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(255,95,21,.45);
+    }
+    .btn-gen:active { transform: translateY(0); }
+
+    /* ── INFO BOX ── */
+    .info-box {
+      background: rgba(255,193,7,.06);
+      border: 1px solid rgba(255,193,7,.2);
+      border-radius: var(--rs);
+      color: var(--muted);
+      font-size: 12px;
+      padding: 11px 14px;
+      margin-top: 12px;
+      line-height: 1.7;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .info-box .icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+
+    /* ── ERROR ── */
+    .err-box {
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: var(--rs);
+      color: #fca5a5;
+      font-size: 13px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+    .err-box.show { display: flex; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--success);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform .3s;
+      z-index: 9999;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      line-height: 1.8;
+    }
+
+    .custom-input { margin-top: 8px; display: none; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 480px) {
+      .container { padding: 12px 10px 40px; }
+      .card { padding: 16px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-road"></div>
+  <span class="header-icon">🏍️</span>
+  <h1>九州ツーリングプランナー</h1>
+  <div class="header-sub">条件を入力してClaude AIにプランを生成させましょう</div>
+</header>
+
+<div class="container">
+
+  <!-- FORM -->
+  <div class="card">
+    <div class="card-title">🗺️ ツーリング条件</div>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label>🚀 出発地</label>
+        <select id="depSel" onchange="onSelectChange('dep')">
+          <option value="">選択してください</option>
+          <optgroup label="福岡県">
+            <option>福岡市</option><option>北九州市</option>
+            <option>久留米市</option><option>飯塚市</option>
+          </optgroup>
+          <optgroup label="佐賀県">
+            <option>佐賀市</option><option>唐津市</option>
+          </optgroup>
+          <optgroup label="長崎県">
+            <option>長崎市</option><option>佐世保市</option><option>島原市</option>
+          </optgroup>
+          <optgroup label="熊本県">
+            <option>熊本市</option><option>阿蘇市</option><option>天草市</option>
+          </optgroup>
+          <optgroup label="大分県">
+            <option>大分市</option><option>別府市</option><option>由布院</option>
+          </optgroup>
+          <optgroup label="宮崎県">
+            <option>宮崎市</option><option>延岡市</option><option>都城市</option>
+          </optgroup>
+          <optgroup label="鹿児島県">
+            <option>鹿児島市</option><option>指宿市</option><option>霧島市</option>
+          </optgroup>
+          <option value="custom">その他（自由入力）</option>
+        </select>
+        <input class="custom-input" type="text" id="depTxt" placeholder="出発地を入力...">
+      </div>
+
+      <div class="form-group">
+        <label>🏁 目的地・エリア</label>
+        <select id="dstSel" onchange="onSelectChange('dst')">
+          <option value="">選択してください</option>
+          <optgroup label="絶景・ドライブ">
+            <option>阿蘇山周辺</option><option>やまなみハイウェイ</option>
+            <option>由布岳・由布院</option><option>雲仙・島原半島</option>
+            <option>天草諸島</option><option>日南海岸・フェニックスロード</option>
+            <option>指宿・薩摩半島</option><option>霧島高原</option>
+            <option>五島列島</option>
+          </optgroup>
+          <optgroup label="温泉地">
+            <option>別府温泉郷</option><option>湯布院温泉</option>
+            <option>黒川温泉</option><option>雲仙温泉</option>
+            <option>指宿温泉</option><option>霧島温泉</option>
+          </optgroup>
+          <optgroup label="歴史・文化">
+            <option>長崎市内・グラバー園</option><option>平戸島</option>
+            <option>吉野ヶ里遺跡</option><option>熊本城周辺</option>
+            <option>太宰府</option>
+          </optgroup>
+          <optgroup label="主要都市">
+            <option>福岡市</option><option>熊本市</option>
+            <option>鹿児島市</option><option>長崎市</option>
+            <option>大分市</option><option>宮崎市</option><option>佐賀市</option>
+          </optgroup>
+          <option value="custom">その他（自由入力）</option>
+        </select>
+        <input class="custom-input" type="text" id="dstTxt" placeholder="目的地を入力...">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>⏱️ 走行時間の目安</label>
+      <div class="range-val" id="durLabel">半日（3〜4時間）</div>
+      <input type="range" id="durRange" min="0" max="5" value="1" oninput="onDur()">
+      <div class="range-labels">
+        <span>〜2h</span><span>半日</span><span>終日</span><span>1.5日</span><span>2日</span><span>3日+</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>🌤️ 走行時期</label>
+      <div class="season-grid">
+        <button class="season-btn" data-s="春" onclick="setSeason(this)"><span class="em">🌸</span>春</button>
+        <button class="season-btn" data-s="夏" onclick="setSeason(this)"><span class="em">🌊</span>夏</button>
+        <button class="season-btn" data-s="秋" onclick="setSeason(this)"><span class="em">🍁</span>秋</button>
+        <button class="season-btn" data-s="冬" onclick="setSeason(this)"><span class="em">❄️</span>冬</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>⭐ 重視するポイント（複数選択可）</label>
+      <div class="chips">
+        <button class="chip active" data-p="scenery" onclick="toggleChip(this)">🗻 景色・絶景</button>
+        <button class="chip"        data-p="gourmet" onclick="toggleChip(this)">🍜 グルメ</button>
+        <button class="chip active" data-p="roads"   onclick="toggleChip(this)">🛣️ 快走路</button>
+        <button class="chip"        data-p="onsen"   onclick="toggleChip(this)">♨️ 温泉</button>
+        <button class="chip"        data-p="culture" onclick="toggleChip(this)">🏯 文化・歴史</button>
+        <button class="chip"        data-p="nature"  onclick="toggleChip(this)">🌿 自然・山</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>🌙 ツーリングスタイル</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" data-style="日帰り" onclick="setStyle(this)">☀️ 日帰り</button>
+        <button class="toggle-btn"        data-style="1泊2日" onclick="setStyle(this)">🌙 1泊2日</button>
+        <button class="toggle-btn"        data-style="複数泊" onclick="setStyle(this)">⛺ 複数泊</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="err-box" id="errBox">
+    <span>⚠️</span><span id="errTxt"></span>
+  </div>
+
+  <button class="btn-gen" onclick="openClaude()">
+    <span>✨</span>
+    <span>Claude.aiでプランを生成</span>
+  </button>
+
+  <div class="info-box">
+    <span class="icon">💡</span>
+    <span>ボタンを押すと Claude.ai が新しいタブで開き、プロンプトが入力欄にセットされます。Claude.aiへのログインが必要です。</span>
+  </div>
+
+</div>
+
+<footer>
+  九州ツーリングプランナー &nbsp;·&nbsp; Powered by Claude AI<br>
+  実際のツーリングでは最新の道路状況・法規制をご確認ください
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+//  PWA
+// ─────────────────────────────────────────────
+(function () {
+  const mf = {
+    name: '九州ツーリングプランナー',
+    short_name: '九州ツーリング',
+    description: 'AIが九州のバイクツーリングルートをプランニングします',
+    start_url: '.',
+    display: 'standalone',
+    orientation: 'portrait-primary',
+    background_color: '#0a0a14',
+    theme_color: '#0a0a14',
+    categories: ['travel', 'navigation'],
+    icons: [{
+      src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%230a0a14'/%3E%3Ctext x='96' y='140' font-size='110' text-anchor='middle'%3E%F0%9F%8F%8D%EF%B8%8F%3C/text%3E%3C/svg%3E",
+      sizes: '192x192',
+      type: 'image/svg+xml',
+      purpose: 'any maskable'
+    }]
+  };
+  try {
+    const blob = new Blob([JSON.stringify(mf)], { type: 'application/json' });
+    document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+  } catch (e) {}
+
+  if ('serviceWorker' in navigator) {
+    const sw = `
+const C='ktp-v1';
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>r)));
+});`;
+    try {
+      const swBlob = new Blob([sw], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+    } catch (e) {}
+  }
+})();
+
+// ─────────────────────────────────────────────
+//  FORM STATE
+// ─────────────────────────────────────────────
+let season = '春';
+let style  = '日帰り';
+
+const DUR_LABELS = [
+  '〜2時間（短距離）',
+  '半日（3〜4時間）',
+  '終日（5〜7時間）',
+  '1日半（7〜10時間）',
+  '2日間（1泊2日）',
+  '3日間以上（複数泊）'
+];
+const DUR_VALUES = [
+  '2時間以内',
+  '半日（3〜4時間）',
+  '終日（5〜7時間）',
+  '7〜10時間（1泊含む）',
+  '2日間・1泊2日',
+  '3日間以上・複数泊'
+];
+
+function onDur() {
+  const v   = +document.getElementById('durRange').value;
+  const pct = (v / 5) * 100;
+  const el  = document.getElementById('durRange');
+  el.style.background = `linear-gradient(to right,var(--accent) ${pct}%,var(--bg) ${pct}%)`;
+  document.getElementById('durLabel').textContent = DUR_LABELS[v];
+}
+
+function setSeason(btn) {
+  document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  season = btn.dataset.s;
+}
+
+function setStyle(btn) {
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  style = btn.dataset.style;
+}
+
+function toggleChip(btn) { btn.classList.toggle('active'); }
+
+function onSelectChange(prefix) {
+  const sel = document.getElementById(prefix + 'Sel');
+  const txt = document.getElementById(prefix + 'Txt');
+  txt.style.display = sel.value === 'custom' ? 'block' : 'none';
+  if (sel.value === 'custom') txt.focus();
+}
+
+function getVal(prefix) {
+  const sel = document.getElementById(prefix + 'Sel');
+  if (sel.value === 'custom') return document.getElementById(prefix + 'Txt').value.trim();
+  return sel.value;
+}
+
+// ─────────────────────────────────────────────
+//  PROMPT BUILDER
+// ─────────────────────────────────────────────
+function buildPrompt(dep, dst, dur, priorities) {
+  const pmap = {
+    scenery: '景色・絶景スポット',
+    gourmet: 'グルメ・名物料理',
+    roads:   '快走路・ワインディング',
+    onsen:   '温泉・入浴施設',
+    culture: '文化・歴史スポット',
+    nature:  '自然・山岳エリア'
+  };
+  const ptxt = priorities.length
+    ? priorities.map(p => pmap[p] || p).join('、')
+    : 'バランスよく';
+  const hasGourmet = priorities.includes('gourmet');
+  const hasOnsen   = priorities.includes('onsen');
+
+  return `九州のバイクツーリングに精通した専門ガイドとして、以下の条件で詳細なツーリングプランを作成してください。実在する道路名・施設名・スポット名を具体的に挙げてください。
+
+【ツーリング条件】
+- 出発地: ${dep || '未指定（九州各地から出発可能）'}
+- 目的地・メインエリア: ${dst || '未指定（九州各地）'}
+- 走行時間: ${dur}
+- 走行時期: ${season}
+- スタイル: ${style}
+- 重視するポイント: ${ptxt}
+
+以下の構成でプランを作成してください：
+
+## 🗺️ ルート概要
+総距離の目安、主要経由地、推奨出発時刻、ルートのキャラクター（峠道中心・海岸線中心など）
+
+## 🛣️ 推奨ルート
+区間ごとに、国道番号・県道番号・通称名（例：やまなみハイウェイ、阿蘇パノラマラインなど）と見どころ・特徴を説明${style !== '日帰り' ? '。宿泊地の提案も含めてください' : ''}。
+
+## 📍 立ち寄りスポット
+${ptxt}に関連した具体的なスポット（施設名・場所・おすすめポイント）を時間帯ごとに紹介
+
+## 🏍️ 走行のポイント
+路面状況・注意区間、快走ポイント、絶景撮影スポット、燃料補給の注意点
+${hasGourmet ? `
+## 🍽️ グルメガイド
+ルート沿いのおすすめ食事処（店名・場所）と九州の名物料理・郷土食` : ''}${hasOnsen ? `
+## ♨️ 温泉ガイド
+ルート沿いのおすすめ温泉施設（施設名・日帰り入浴情報・料金目安）` : ''}
+
+## 🌤️ ${season}のアドバイス
+この季節ならではの楽しみ方、天候・服装の注意点、混雑情報、${season}限定の見どころ
+
+## 💡 カスタマイズ提案
+このルートのアレンジ案や、時間が余った場合・足りない場合の調整方法`;
+}
+
+// ─────────────────────────────────────────────
+//  OPEN CLAUDE
+// ─────────────────────────────────────────────
+function openClaude() {
+  const dep = getVal('dep');
+  const dst = getVal('dst');
+
+  if (!dep && !dst) {
+    showErr('出発地または目的地を選択してください。');
+    return;
+  }
+  hideErr();
+
+  const dur        = DUR_VALUES[+document.getElementById('durRange').value];
+  const priorities = [...document.querySelectorAll('.chip.active')].map(c => c.dataset.p);
+  const prompt     = buildPrompt(dep, dst, dur, priorities);
+
+  const url = 'https://claude.ai/new?q=' + encodeURIComponent(prompt);
+  window.open(url, '_blank', 'noopener');
+
+  // Clipboard fallback for long prompts or popup blockers
+  navigator.clipboard.writeText(prompt).catch(() => {});
+  showToast('Claude.ai を開きました');
+}
+
+// ─────────────────────────────────────────────
+//  UI HELPERS
+// ─────────────────────────────────────────────
+function showErr(msg) {
+  const box = document.getElementById('errBox');
+  document.getElementById('errTxt').textContent = msg;
+  box.classList.add('show');
+}
+
+function hideErr() {
+  document.getElementById('errBox').classList.remove('show');
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = '✓ ' + msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  onDur();
+
+  // Set season from current month
+  const m = new Date().getMonth() + 1;
+  const s = (m <= 2 || m === 12) ? '冬'
+          : m <= 5 ? '春'
+          : m <= 8 ? '夏'
+          : '秋';
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.s === s);
+  });
+  season = s;
+});
+</script>
+</body>
+</html>
