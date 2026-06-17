@@ -279,39 +279,51 @@
       color: var(--accent-lt);
     }
 
-    /* ── GENERATE BUTTON ── */
-    .btn-gen {
-      width: 100%;
-      background: linear-gradient(135deg, var(--accent) 0%, #c44000 100%);
+    /* ── AI BUTTONS ── */
+    .btn-ai-group {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 520px) {
+      .btn-ai-group { grid-template-columns: repeat(2, 1fr); }
+    }
+    .btn-ai {
       border: none;
       border-radius: var(--r);
       color: #fff;
       font-family: inherit;
-      font-size: 16px;
-      font-weight: 800;
-      padding: 17px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 15px 6px;
       cursor: pointer;
-      transition: all .3s;
+      transition: transform .2s, filter .2s;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      letter-spacing: 0.06em;
-      box-shadow: 0 4px 20px rgba(255,95,21,.35);
+      gap: 7px;
+      text-align: center;
+      line-height: 1.3;
       position: relative;
       overflow: hidden;
+      letter-spacing: 0.03em;
     }
-    .btn-gen::before {
+    .btn-ai::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 60%);
+      background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
+      pointer-events: none;
     }
-    .btn-gen:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(255,95,21,.45);
-    }
-    .btn-gen:active { transform: translateY(0); }
+    .btn-ai:hover  { transform: translateY(-2px); filter: brightness(1.12); }
+    .btn-ai:active { transform: translateY(0); }
+    .btn-ai .ai-icon { font-size: 18px; line-height: 1; }
+    .btn-claude  { background: linear-gradient(135deg, #D97757 0%, #B85D38 100%); box-shadow: 0 4px 18px rgba(217,119,87,.4); }
+    .btn-chatgpt { background: linear-gradient(135deg, #10A37F 0%, #0A7A5F 100%); box-shadow: 0 4px 18px rgba(16,163,127,.4); }
+    .btn-gemini  { background: linear-gradient(135deg, #4285F4 0%, #5A52D5 100%); box-shadow: 0 4px 18px rgba(66,133,244,.4); }
+    .btn-grok    { background: linear-gradient(135deg, #1E1E20 0%, #2A2A2E 100%); border: 1px solid rgba(255,255,255,.15); box-shadow: 0 4px 18px rgba(0,0,0,.5); }
 
     /* ── INFO BOX ── */
     .info-box {
@@ -510,14 +522,28 @@
     <span>⚠️</span><span id="errTxt"></span>
   </div>
 
-  <button class="btn-gen" onclick="openClaude()">
-    <span>✨</span>
-    <span>Claude.aiでプランを生成</span>
-  </button>
+  <div class="btn-ai-group">
+    <button class="btn-ai btn-claude" onclick="openAI('claude')">
+      <span class="ai-icon">✦</span>
+      <span>Claudeで開く</span>
+    </button>
+    <button class="btn-ai btn-chatgpt" onclick="openAI('chatgpt')">
+      <span class="ai-icon">●</span>
+      <span>ChatGPTで開く</span>
+    </button>
+    <button class="btn-ai btn-gemini" onclick="openAI('gemini')">
+      <span class="ai-icon">✧</span>
+      <span>Geminiで開く</span>
+    </button>
+    <button class="btn-ai btn-grok" onclick="openAI('grok')">
+      <span class="ai-icon">✕</span>
+      <span>Grokで開く</span>
+    </button>
+  </div>
 
   <div class="info-box">
     <span class="icon">💡</span>
-    <span>ボタンを押すと Claude.ai が新しいタブで開き、プロンプトが入力欄にセットされます。Claude.aiへのログインが必要です。</span>
+    <span>ボタンを押すとAIサービスが新しいタブで開きます。プロンプトは自動でコピーされます。Claudeは自動入力、他サービスは入力欄に貼り付けてください。各サービスへのログインが必要です。</span>
   </div>
 
 </div>
@@ -685,28 +711,41 @@ ${hasGourmet ? `
 }
 
 // ─────────────────────────────────────────────
-//  OPEN CLAUDE
+//  OPEN AI SERVICE
 // ─────────────────────────────────────────────
-function openClaude() {
+const AI_SERVICES = {
+  claude:  {
+    url:   p => 'https://claude.ai/new?q=' + encodeURIComponent(p),
+    toast: 'Claude.ai を開きました'
+  },
+  chatgpt: {
+    url:   p => 'https://chatgpt.com/?q=' + encodeURIComponent(p),
+    toast: 'ChatGPT を開きました'
+  },
+  gemini:  {
+    url:   p => 'https://gemini.google.com/app?q=' + encodeURIComponent(p),
+    toast: 'Gemini を開きました'
+  },
+  grok:    {
+    url:   () => 'https://x.com/i/grok',
+    toast: 'Grokを開きました ─ 入力欄に貼り付けてください'
+  }
+};
+
+function openAI(service) {
   const dep = getVal('dep');
   const dst = getVal('dst');
-
-  if (!dep && !dst) {
-    showErr('出発地または目的地を選択してください。');
-    return;
-  }
+  if (!dep && !dst) { showErr('出発地または目的地を選択してください。'); return; }
   hideErr();
 
   const dur        = DUR_VALUES[+document.getElementById('durRange').value];
   const priorities = [...document.querySelectorAll('.chip.active')].map(c => c.dataset.p);
   const prompt     = buildPrompt(dep, dst, dur, priorities);
+  const svc        = AI_SERVICES[service];
 
-  const url = 'https://claude.ai/new?q=' + encodeURIComponent(prompt);
-  window.open(url, '_blank', 'noopener');
-
-  // Clipboard fallback for long prompts or popup blockers
+  window.open(svc.url(prompt), '_blank', 'noopener');
   navigator.clipboard.writeText(prompt).catch(() => {});
-  showToast('Claude.ai を開きました');
+  showToast(svc.toast);
 }
 
 // ─────────────────────────────────────────────
