@@ -330,6 +330,41 @@
       color: var(--text);
     }
 
+    /* ── DEST TAGS ── */
+    .dest-tags-wrap {
+      margin-top: 12px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .dest-tags-wrap.show { display: flex; }
+    .dest-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,95,21,.15);
+      border: 1px solid rgba(255,95,21,.4);
+      border-radius: 20px;
+      color: var(--accent-lt);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 8px 5px 12px;
+    }
+    .dest-tag-remove {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 17px;
+      line-height: 1;
+      padding: 0 2px;
+      font-family: inherit;
+      opacity: 0.65;
+      transition: opacity .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dest-tag-remove:hover { opacity: 1; }
+
     /* ── SUMMARY CARD ── */
     .summary-card {
       background: var(--card);
@@ -628,7 +663,7 @@
     <h2 class="step-question">目的地を選ぶ</h2>
     <p class="step-sub">どのエリア・スポットへ向かいますか？</p>
     <select class="dest-select" id="destSelect" onchange="onDestSelect(this)">
-      <option value="">— 目的地を選んでください —</option>
+      <option value="">— 目的地を追加する —</option>
       <optgroup label="🏔️ 熊本県">
         <option value="阿蘇">阿蘇</option>
         <option value="天草">天草</option>
@@ -673,15 +708,18 @@
         <option value="__other__">自由に入力する…</option>
       </optgroup>
     </select>
+    <!-- 選択済みタグ -->
+    <div class="dest-tags-wrap" id="destTagsWrap"></div>
     <!-- カスタム入力（「その他」選択時に表示） -->
     <div class="dest-custom-wrap" id="destCustomWrap">
       <input class="dest-custom-input" type="text" id="destCustomInput"
              placeholder="目的地を入力…（例：平戸島、五島列島）"
              oninput="onDestCustomInput()">
       <button class="dest-next-btn" id="destNextBtn" onclick="confirmCustomDest()">
-        次へ →
+        追加 →
       </button>
     </div>
+    <button class="dest-next-btn" id="destProceedBtn" onclick="goToStep3()">次へ →</button>
   </div>
 
   <!-- ===== STEP 3: 日程 ===== -->
@@ -941,7 +979,7 @@ const TOTAL_STEPS = 6;
 
 const state = {
   dep:      null,   // 出発地
-  dest:     null,   // 目的地エリア
+  dest:     [],     // 目的地（複数選択）
   schedule: null,   // 日程
   theme:    [],     // テーマ（複数選択）
   distance: null,   // 距離感
@@ -1037,18 +1075,49 @@ function goToStep5() {
   showStep(5);
 }
 
-// 目的地プルダウン選択
+// 目的地プルダウン（複数選択）
+function escHtml(s) {
+  return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
 function onDestSelect(sel) {
   const val = sel.value;
+  sel.value = '';
   if (!val) return;
   if (val === '__other__') {
     document.getElementById('destCustomWrap').classList.add('show');
     document.getElementById('destCustomInput').focus();
     return;
   }
-  document.getElementById('destCustomWrap').classList.remove('show');
-  state.dest = val;
-  goingBack  = false;
+  addDestTag(val);
+}
+
+function addDestTag(value) {
+  if (state.dest.includes(value)) return;
+  state.dest.push(value);
+  renderDestTags();
+}
+
+function removeDestTag(btn) {
+  const idx = +btn.dataset.idx;
+  state.dest.splice(idx, 1);
+  renderDestTags();
+}
+
+function renderDestTags() {
+  const wrap = document.getElementById('destTagsWrap');
+  const proceed = document.getElementById('destProceedBtn');
+  const hasItems = state.dest.length > 0;
+  wrap.classList.toggle('show', hasItems);
+  proceed.classList.toggle('show', hasItems);
+  wrap.innerHTML = state.dest.map((v, i) =>
+    `<span class="dest-tag">${escHtml(v)}<button class="dest-tag-remove" data-idx="${i}" onclick="removeDestTag(this)" aria-label="削除">×</button></span>`
+  ).join('');
+}
+
+function goToStep3() {
+  if (state.dest.length === 0) return;
+  goingBack = false;
   showStep(3);
 }
 
@@ -1060,9 +1129,10 @@ function onDestCustomInput() {
 function confirmCustomDest() {
   const val = document.getElementById('destCustomInput').value.trim();
   if (!val) return;
-  state.dest = val;
-  goingBack  = false;
-  showStep(3);
+  addDestTag(val);
+  document.getElementById('destCustomInput').value = '';
+  document.getElementById('destCustomWrap').classList.remove('show');
+  document.getElementById('destNextBtn').classList.remove('show');
 }
 
 function resetDestCustom() {
@@ -1100,21 +1170,10 @@ function showStep(n) {
   }
   currentStep = n;
 
-  // 戻ったときにSTEP2のプルダウン状態を復元
-  if (n === 2 && state.dest) {
-    const sel = document.getElementById('destSelect');
-    if (sel) {
-      const optExists = [...sel.options].some(o => o.value === state.dest);
-      if (optExists) {
-        sel.value = state.dest;
-        document.getElementById('destCustomWrap').classList.remove('show');
-      } else {
-        sel.value = '__other__';
-        document.getElementById('destCustomInput').value = state.dest;
-        document.getElementById('destCustomWrap').classList.add('show');
-        document.getElementById('destNextBtn').classList.add('show');
-      }
-    }
+  // 戻ったときにSTEP2のタグ表示を復元
+  if (n === 2) {
+    renderDestTags();
+    resetDestCustom();
   }
 
   updateProgress();
@@ -1156,7 +1215,7 @@ function updateProgress() {
 
 function updateSummary() {
   document.getElementById('sumDep').textContent      = state.dep      || '—';
-  document.getElementById('sumDest').textContent     = state.dest     || '—';
+  document.getElementById('sumDest').textContent     = state.dest.length > 0 ? state.dest.join(' → ') : '—';
   document.getElementById('sumSchedule').textContent = state.schedule || '—';
   document.getElementById('sumTheme').textContent    = state.theme.length > 0 ? state.theme.join('・') : '—';
   document.getElementById('sumDist').textContent     = state.distance || '—';
@@ -1164,9 +1223,10 @@ function updateSummary() {
 }
 
 function restart() {
-  Object.keys(state).forEach(k => { state[k] = k === 'theme' ? [] : null; });
+  Object.keys(state).forEach(k => { state[k] = (k === 'theme' || k === 'dest') ? [] : null; });
   document.querySelectorAll('.opt-btn.selected').forEach(b => b.classList.remove('selected'));
   document.getElementById('themeNextBtn').classList.remove('show');
+  renderDestTags();
   resetDestCustom();
   document.getElementById('stepFinal').classList.remove('active', 'go-back');
   goingBack   = true;
@@ -1191,14 +1251,15 @@ function buildPrompt() {
   const hasOnsen   = theme.includes('温泉');
   const hasGourmet = theme.includes('グルメ') || theme.includes('温泉');
   const overnight  = schedule !== '日帰り';
-  const depCoord   = DEP_COORDS[dep]   || dep;
-  const destCoord  = DEST_COORDS[dest] || dest;
+  const depCoord   = DEP_COORDS[dep] || dep;
+  const destLabel  = dest.join(' → ');
+  const destCoords = dest.map(d => DEST_COORDS[d] || d).join('/');
 
   return `九州のバイクツーリングに精通した専門ガイドとして、以下の条件で詳細なツーリングプランを作成してください。実在する道路名・施設名・スポット名を具体的に挙げてください。
 
 【ツーリング条件】
 - 出発地: ${dep}県内（${dep}市または近隣の主要地点からスタート）
-- 目的地エリア: ${dest}
+- 経由地・目的地（この順に巡ること）: ${destLabel}
 - 日程: ${schedule}
 - テーマ: ${themeTxt}
 - 走行距離感: ${distance}
@@ -1228,7 +1289,7 @@ ${themeTxt}に関連した具体的なスポット（施設名・場所・おす
 このルートのアレンジ案や、時間が余った場合・足りない場合の調整方法
 
 ---
-最後にルートのGoogleマップリンクをこの形式で出力してください：https://www.google.com/maps/dir/${depCoord}/${destCoord}`;
+最後に全経由地を含むルートのGoogleマップリンクをこの形式で出力してください（地点の順番を保持）：https://www.google.com/maps/dir/${depCoord}/${destCoords}`;
 }
 
 // ─────────────────────────────────────────────
