@@ -301,6 +301,35 @@
     .dest-next-btn:hover  { filter: brightness(1.1); }
     .dest-next-btn:active { transform: scale(0.97); }
 
+    /* ── DESTINATION SELECT ── */
+    .dest-select {
+      width: 100%;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: var(--rs);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 16px;
+      padding: 14px 44px 14px 16px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='2,5 8,11 14,5' fill='none' stroke='%237070a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 18px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .dest-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255,95,21,.2);
+    }
+    .dest-select option, .dest-select optgroup {
+      background: #1c1c38;
+      color: var(--text);
+    }
+
     /* ── SUMMARY CARD ── */
     .summary-card {
       background: var(--card);
@@ -593,67 +622,61 @@
     </div>
   </div>
 
-  <!-- ===== STEP 2: 目的地エリア ===== -->
+  <!-- ===== STEP 2: 目的地 ===== -->
   <div class="step-card" id="step2">
     <div class="step-tag">STEP 2</div>
-    <h2 class="step-question">目的地エリアを選ぶ</h2>
-    <p class="step-sub">どのエリアへ向かいますか？</p>
-    <div class="opt-grid" id="destGrid">
-      <button class="opt-btn" onclick="pick(2,'阿蘇・九重',this)">
-        <span class="opt-icon">🏔️</span>
-        <span class="opt-label">阿蘇・九重</span>
-        <span class="opt-note">やまなみハイウェイ</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'天草・島原',this)">
-        <span class="opt-icon">🌊</span>
-        <span class="opt-label">天草・島原</span>
-        <span class="opt-note">天草五橋・雲仙</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'由布院・別府',this)">
-        <span class="opt-icon">♨️</span>
-        <span class="opt-label">由布院・別府</span>
-        <span class="opt-note">温泉とやまなみ</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'指宿・霧島',this)">
-        <span class="opt-icon">🌋</span>
-        <span class="opt-label">指宿・霧島</span>
-        <span class="opt-note">砂むし温泉・えびの高原</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'大隅・佐多岬',this)">
-        <span class="opt-icon">🗺️</span>
-        <span class="opt-label">大隅・佐多岬</span>
-        <span class="opt-note">九州最南端の岬</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'雲仙・長崎市内',this)">
-        <span class="opt-icon">🦋</span>
-        <span class="opt-label">雲仙・長崎市内</span>
-        <span class="opt-note">島原半島・グラバー園</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'高千穂・延岡',this)">
-        <span class="opt-icon">🌄</span>
-        <span class="opt-label">高千穂・延岡</span>
-        <span class="opt-note">高千穂峡・神話の里</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'宮崎市・日南',this)">
-        <span class="opt-icon">🌴</span>
-        <span class="opt-label">宮崎市・日南</span>
-        <span class="opt-note">日南海岸・フェニックスロード</span>
-      </button>
-      <button class="opt-btn" onclick="pick(2,'糸島・唐津',this)">
-        <span class="opt-icon">🏖️</span>
-        <span class="opt-label">糸島・唐津</span>
-        <span class="opt-note">玄海灘・虹の松原</span>
-      </button>
-      <button class="opt-btn" id="destOtherBtn" onclick="pickDestOther(this)">
-        <span class="opt-icon">✏️</span>
-        <span class="opt-label">その他</span>
-        <span class="opt-note">自由に入力する</span>
-      </button>
-    </div>
+    <h2 class="step-question">目的地を選ぶ</h2>
+    <p class="step-sub">どのエリア・スポットへ向かいますか？</p>
+    <select class="dest-select" id="destSelect" onchange="onDestSelect(this)">
+      <option value="">— 目的地を選んでください —</option>
+      <optgroup label="🏔️ 熊本県">
+        <option value="阿蘇">阿蘇</option>
+        <option value="天草">天草</option>
+        <option value="人吉">人吉</option>
+        <option value="菊池渓谷">菊池渓谷</option>
+      </optgroup>
+      <optgroup label="🌋 鹿児島県">
+        <option value="指宿">指宿</option>
+        <option value="霧島">霧島</option>
+        <option value="桜島">桜島</option>
+        <option value="知覧">知覧</option>
+        <option value="佐多岬">佐多岬</option>
+      </optgroup>
+      <optgroup label="🌊 宮崎県">
+        <option value="高千穂">高千穂</option>
+        <option value="日南海岸">日南海岸</option>
+        <option value="青島">青島</option>
+        <option value="えびの高原">えびの高原</option>
+      </optgroup>
+      <optgroup label="♨️ 大分県">
+        <option value="別府">別府</option>
+        <option value="由布院">由布院</option>
+        <option value="耶馬渓">耶馬渓</option>
+        <option value="姫島">姫島</option>
+      </optgroup>
+      <optgroup label="🌃 福岡県">
+        <option value="糸島">糸島</option>
+        <option value="柳川">柳川</option>
+        <option value="平尾台">平尾台</option>
+      </optgroup>
+      <optgroup label="🦋 長崎県">
+        <option value="島原">島原</option>
+        <option value="平戸">平戸</option>
+        <option value="五島列島">五島列島</option>
+      </optgroup>
+      <optgroup label="🏯 佐賀県">
+        <option value="呼子">呼子</option>
+        <option value="武雄">武雄</option>
+        <option value="嬉野">嬉野</option>
+      </optgroup>
+      <optgroup label="✏️ その他">
+        <option value="__other__">自由に入力する…</option>
+      </optgroup>
+    </select>
     <!-- カスタム入力（「その他」選択時に表示） -->
     <div class="dest-custom-wrap" id="destCustomWrap">
       <input class="dest-custom-input" type="text" id="destCustomInput"
-             placeholder="目的地エリアを入力…（例：平戸島、五島列島）"
+             placeholder="目的地を入力…（例：平戸島、五島列島）"
              oninput="onDestCustomInput()">
       <button class="dest-next-btn" id="destNextBtn" onclick="confirmCustomDest()">
         次へ →
@@ -941,6 +964,43 @@ const DEP_COORDS = {
   '鹿児島': '31.5966,130.5571',
 };
 
+// 目的地ごとの代表座標（Googleマップルートリンク用）
+const DEST_COORDS = {
+  // 熊本県
+  '阿蘇':       '32.8847,131.0897',
+  '天草':       '32.4625,130.1972',
+  '人吉':       '32.2140,130.7548',
+  '菊池渓谷':   '33.0036,130.9214',
+  // 鹿児島県
+  '指宿':       '31.2523,130.6378',
+  '霧島':       '31.9046,130.8631',
+  '桜島':       '31.5808,130.6574',
+  '知覧':       '31.3739,130.4468',
+  '佐多岬':     '30.9937,130.6575',
+  // 宮崎県
+  '高千穂':     '32.7083,131.3064',
+  '日南海岸':   '31.5884,131.3825',
+  '青島':       '31.7895,131.4684',
+  'えびの高原': '31.9406,130.8291',
+  // 大分県
+  '別府':       '33.2839,131.4913',
+  '由布院':     '33.2597,131.3726',
+  '耶馬渓':     '33.4183,131.1264',
+  '姫島':       '33.7227,131.6622',
+  // 福岡県
+  '糸島':       '33.5564,130.1975',
+  '柳川':       '33.1625,130.4031',
+  '平尾台':     '33.7169,130.8503',
+  // 長崎県
+  '島原':       '32.7826,130.3672',
+  '平戸':       '33.3639,129.5536',
+  '五島列島':   '32.7015,128.8390',
+  // 佐賀県
+  '呼子':       '33.5384,129.8935',
+  '武雄':       '33.1927,130.0182',
+  '嬉野':       '33.1016,130.0540',
+};
+
 // ─────────────────────────────────────────────
 //  STEP NAVIGATION
 // ─────────────────────────────────────────────
@@ -977,13 +1037,19 @@ function goToStep5() {
   showStep(5);
 }
 
-// 「その他」ボタン専用（自動進行しない）
-function pickDestOther(btn) {
-  const allBtns = btn.closest('.opt-grid').querySelectorAll('.opt-btn');
-  allBtns.forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  document.getElementById('destCustomWrap').classList.add('show');
-  document.getElementById('destCustomInput').focus();
+// 目的地プルダウン選択
+function onDestSelect(sel) {
+  const val = sel.value;
+  if (!val) return;
+  if (val === '__other__') {
+    document.getElementById('destCustomWrap').classList.add('show');
+    document.getElementById('destCustomInput').focus();
+    return;
+  }
+  document.getElementById('destCustomWrap').classList.remove('show');
+  state.dest = val;
+  goingBack  = false;
+  showStep(3);
 }
 
 function onDestCustomInput() {
@@ -1003,6 +1069,8 @@ function resetDestCustom() {
   document.getElementById('destCustomWrap').classList.remove('show');
   document.getElementById('destCustomInput').value = '';
   document.getElementById('destNextBtn').classList.remove('show');
+  const sel = document.getElementById('destSelect');
+  if (sel) sel.value = '';
 }
 
 function goBack() {
@@ -1031,6 +1099,24 @@ function showStep(n) {
     next.classList.add('active');
   }
   currentStep = n;
+
+  // 戻ったときにSTEP2のプルダウン状態を復元
+  if (n === 2 && state.dest) {
+    const sel = document.getElementById('destSelect');
+    if (sel) {
+      const optExists = [...sel.options].some(o => o.value === state.dest);
+      if (optExists) {
+        sel.value = state.dest;
+        document.getElementById('destCustomWrap').classList.remove('show');
+      } else {
+        sel.value = '__other__';
+        document.getElementById('destCustomInput').value = state.dest;
+        document.getElementById('destCustomWrap').classList.add('show');
+        document.getElementById('destNextBtn').classList.add('show');
+      }
+    }
+  }
+
   updateProgress();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1105,6 +1191,8 @@ function buildPrompt() {
   const hasOnsen   = theme.includes('温泉');
   const hasGourmet = theme.includes('グルメ') || theme.includes('温泉');
   const overnight  = schedule !== '日帰り';
+  const depCoord   = DEP_COORDS[dep]   || dep;
+  const destCoord  = DEST_COORDS[dest] || dest;
 
   return `九州のバイクツーリングに精通した専門ガイドとして、以下の条件で詳細なツーリングプランを作成してください。実在する道路名・施設名・スポット名を具体的に挙げてください。
 
@@ -1140,7 +1228,7 @@ ${themeTxt}に関連した具体的なスポット（施設名・場所・おす
 このルートのアレンジ案や、時間が余った場合・足りない場合の調整方法
 
 ---
-最後にルートのGoogleマップリンクをこの形式で出力してください：https://www.google.com/maps/dir/${dep}/${dest}`;
+最後にルートのGoogleマップリンクをこの形式で出力してください：https://www.google.com/maps/dir/${depCoord}/${destCoord}`;
 }
 
 // ─────────────────────────────────────────────
