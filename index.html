@@ -415,6 +415,35 @@
       -webkit-tap-highlight-color: transparent;
     }
     .dest-custom-inline button:hover { filter: brightness(1.1); }
+    .dest-dd-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--card2);
+      position: sticky;
+      bottom: 0;
+    }
+    .dest-dd-footer-count {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .dest-dd-confirm {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--rs);
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 20px;
+      cursor: pointer;
+      transition: filter .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dest-dd-confirm:hover { filter: brightness(1.1); }
 
     /* ── DEST TAGS ── */
     .dest-tags-wrap {
@@ -878,6 +907,10 @@
             <input type="text" id="destCustomInput" placeholder="目的地を入力…">
             <button type="button" onclick="confirmCustomDest()">追加</button>
           </div>
+        </div>
+        <div class="dest-dd-footer">
+          <span class="dest-dd-footer-count" id="destCountLabel">0件選択中</span>
+          <button type="button" class="dest-dd-confirm" onclick="closeDestDropdown()">決定</button>
         </div>
       </div>
     </div>
@@ -1382,6 +1415,8 @@ function renderDestTags() {
   const label   = document.getElementById('destTriggerText');
   const n = state.dest.length;
   if (label) label.textContent = n > 0 ? `${n}件選択済み — さらに追加する` : '目的地を追加する';
+  const countLabel = document.getElementById('destCountLabel');
+  if (countLabel) countLabel.textContent = `${n}件選択中`;
   wrap.classList.toggle('show', n > 0);
   proceed.classList.toggle('show', n > 0);
   wrap.innerHTML = state.dest.map((v, i) =>
