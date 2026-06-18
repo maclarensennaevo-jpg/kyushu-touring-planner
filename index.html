@@ -698,34 +698,35 @@
   <div class="step-card" id="step4">
     <div class="step-tag">STEP 4</div>
     <h2 class="step-question">テーマを選ぶ</h2>
-    <p class="step-sub">このツーリングで一番楽しみたいことは？</p>
+    <p class="step-sub">楽しみたいことを選んでください（複数選択可）</p>
     <div class="opt-grid">
-      <button class="opt-btn" onclick="pick(4,'海沿い',this)">
+      <button class="opt-btn" onclick="pickTheme('海沿い',this)">
         <span class="opt-icon">🌊</span>
         <span class="opt-label">海沿い</span>
         <span class="opt-note">絶景海道を疾走</span>
       </button>
-      <button class="opt-btn" onclick="pick(4,'山・峠',this)">
+      <button class="opt-btn" onclick="pickTheme('山・峠',this)">
         <span class="opt-icon">🏔️</span>
         <span class="opt-label">山・峠</span>
         <span class="opt-note">ワインディングを攻める</span>
       </button>
-      <button class="opt-btn" onclick="pick(4,'グルメ',this)">
+      <button class="opt-btn" onclick="pickTheme('グルメ',this)">
         <span class="opt-icon">🍜</span>
         <span class="opt-label">グルメ</span>
         <span class="opt-note">名物料理を食べ歩き</span>
       </button>
-      <button class="opt-btn" onclick="pick(4,'温泉',this)">
+      <button class="opt-btn" onclick="pickTheme('温泉',this)">
         <span class="opt-icon">♨️</span>
         <span class="opt-label">温泉</span>
         <span class="opt-note">名湯でゆっくり癒やし</span>
       </button>
-      <button class="opt-btn span2" onclick="pick(4,'神社仏閣',this)">
+      <button class="opt-btn span2" onclick="pickTheme('神社仏閣',this)">
         <span class="opt-icon">⛩️</span>
         <span class="opt-label">神社仏閣</span>
         <span class="opt-note">歴史とパワースポット巡り</span>
       </button>
     </div>
+    <button class="dest-next-btn" id="themeNextBtn" onclick="goToStep5()">次へ →</button>
   </div>
 
   <!-- ===== STEP 5: 距離感 ===== -->
@@ -919,7 +920,7 @@ const state = {
   dep:      null,   // 出発地
   dest:     null,   // 目的地エリア
   schedule: null,   // 日程
-  theme:    null,   // テーマ
+  theme:    [],     // テーマ（複数選択）
   distance: null,   // 距離感
   party:    null,   // 同行人数
 };
@@ -958,6 +959,22 @@ function pick(step, value, btn) {
     if (step < TOTAL_STEPS) showStep(step + 1);
     else showFinal();
   }, 340);
+}
+
+function pickTheme(value, btn) {
+  btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) {
+    if (!state.theme.includes(value)) state.theme.push(value);
+  } else {
+    state.theme = state.theme.filter(v => v !== value);
+  }
+  document.getElementById('themeNextBtn').classList.toggle('show', state.theme.length > 0);
+}
+
+function goToStep5() {
+  if (state.theme.length === 0) return;
+  goingBack = false;
+  showStep(5);
 }
 
 // 「その他」ボタン専用（自動進行しない）
@@ -1055,14 +1072,15 @@ function updateSummary() {
   document.getElementById('sumDep').textContent      = state.dep      || '—';
   document.getElementById('sumDest').textContent     = state.dest     || '—';
   document.getElementById('sumSchedule').textContent = state.schedule || '—';
-  document.getElementById('sumTheme').textContent    = state.theme    || '—';
+  document.getElementById('sumTheme').textContent    = state.theme.length > 0 ? state.theme.join('・') : '—';
   document.getElementById('sumDist').textContent     = state.distance || '—';
   document.getElementById('sumParty').textContent    = state.party    || '—';
 }
 
 function restart() {
-  Object.keys(state).forEach(k => state[k] = null);
+  Object.keys(state).forEach(k => { state[k] = k === 'theme' ? [] : null; });
   document.querySelectorAll('.opt-btn.selected').forEach(b => b.classList.remove('selected'));
+  document.getElementById('themeNextBtn').classList.remove('show');
   resetDestCustom();
   document.getElementById('stepFinal').classList.remove('active', 'go-back');
   goingBack   = true;
@@ -1083,9 +1101,9 @@ const THEME_MAP = {
 
 function buildPrompt() {
   const { dep, dest, schedule, theme, distance, party } = state;
-  const themeTxt   = THEME_MAP[theme] || theme;
-  const hasOnsen   = theme === '温泉';
-  const hasGourmet = theme === 'グルメ' || theme === '温泉';
+  const themeTxt   = theme.map(t => THEME_MAP[t] || t).join('・');
+  const hasOnsen   = theme.includes('温泉');
+  const hasGourmet = theme.includes('グルメ') || theme.includes('温泉');
   const overnight  = schedule !== '日帰り';
 
   return `九州のバイクツーリングに精通した専門ガイドとして、以下の条件で詳細なツーリングプランを作成してください。実在する道路名・施設名・スポット名を具体的に挙げてください。
@@ -1122,9 +1140,7 @@ ${themeTxt}に関連した具体的なスポット（施設名・場所・おす
 このルートのアレンジ案や、時間が余った場合・足りない場合の調整方法
 
 ---
-最後にルートのGoogleマップリンクをこの形式で出力してください：https://www.google.com/maps/dir/${dep}/${dest}
-
-回答は箇条書きで簡潔にまとめ、ルート名・おすすめスポット3箇所・所要時間の3点だけ教えてください。`;
+最後にルートのGoogleマップリンクをこの形式で出力してください：https://www.google.com/maps/dir/${dep}/${dest}`;
 }
 
 // ─────────────────────────────────────────────
