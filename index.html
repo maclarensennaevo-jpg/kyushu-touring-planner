@@ -301,34 +301,120 @@
     .dest-next-btn:hover  { filter: brightness(1.1); }
     .dest-next-btn:active { transform: scale(0.97); }
 
-    /* ── DESTINATION SELECT ── */
-    .dest-select {
+    /* ── DESTINATION DROPDOWN ── */
+    .dest-dropdown { position: relative; }
+    .dest-dd-trigger {
       width: 100%;
       background: var(--card);
       border: 2px solid var(--border);
       border-radius: var(--rs);
       color: var(--text);
       font-family: inherit;
-      font-size: 16px;
-      padding: 14px 44px 14px 16px;
-      outline: none;
-      -webkit-appearance: none;
-      appearance: none;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 16px;
+      text-align: left;
       cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='2,5 8,11 14,5' fill='none' stroke='%237070a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      background-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
       transition: border-color .2s, box-shadow .2s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .dest-select:focus {
+    .dest-dd-trigger:hover,
+    .dest-dropdown.open .dest-dd-trigger {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(255,95,21,.2);
+      box-shadow: 0 0 0 3px rgba(255,95,21,.18);
     }
-    .dest-select option, .dest-select optgroup {
-      background: #1c1c38;
+    .dest-dd-arrow {
+      font-size: 18px;
+      color: var(--muted);
+      transition: transform .22s;
+      flex-shrink: 0;
+    }
+    .dest-dropdown.open .dest-dd-arrow { transform: rotate(180deg); }
+    .dest-dd-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: 0 8px 32px rgba(0,0,0,.55);
+      z-index: 50;
+      max-height: 320px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .dest-dropdown.open .dest-dd-panel { display: block; }
+    .dest-group-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      padding: 10px 14px 4px;
+      border-top: 1px solid var(--border);
+    }
+    .dest-group:first-child .dest-group-label { border-top: none; padding-top: 12px; }
+    .dest-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background .12s;
+      font-size: 14px;
+      font-weight: 600;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .dest-option:hover { background: rgba(255,255,255,.05); }
+    .dest-option.checked {
+      color: var(--accent-lt);
+      background: rgba(255,95,21,.08);
+    }
+    .dest-option input[type="checkbox"] {
+      width: 17px; height: 17px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .dest-custom-inline {
+      display: flex;
+      gap: 8px;
+      padding: 8px 14px 12px;
+    }
+    .dest-custom-inline input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
       color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 8px 10px;
+      outline: none;
     }
+    .dest-custom-inline input:focus { border-color: var(--accent); }
+    .dest-custom-inline button {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--rs);
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dest-custom-inline button:hover { filter: brightness(1.1); }
 
     /* ── DEST TAGS ── */
     .dest-tags-wrap {
@@ -662,63 +748,70 @@
     <div class="step-tag">STEP 2</div>
     <h2 class="step-question">目的地を選ぶ</h2>
     <p class="step-sub">目的地を選んでください（複数選択可）</p>
-    <select class="dest-select" id="destSelect" onchange="onDestSelect(this)">
-      <option value="">— 目的地を追加する —</option>
-      <optgroup label="🏔️ 熊本県">
-        <option value="阿蘇">阿蘇</option>
-        <option value="天草">天草</option>
-        <option value="人吉">人吉</option>
-        <option value="菊池渓谷">菊池渓谷</option>
-      </optgroup>
-      <optgroup label="🌋 鹿児島県">
-        <option value="指宿">指宿</option>
-        <option value="霧島">霧島</option>
-        <option value="桜島">桜島</option>
-        <option value="知覧">知覧</option>
-        <option value="佐多岬">佐多岬</option>
-      </optgroup>
-      <optgroup label="🌊 宮崎県">
-        <option value="高千穂">高千穂</option>
-        <option value="日南海岸">日南海岸</option>
-        <option value="青島">青島</option>
-        <option value="えびの高原">えびの高原</option>
-      </optgroup>
-      <optgroup label="♨️ 大分県">
-        <option value="別府">別府</option>
-        <option value="由布院">由布院</option>
-        <option value="耶馬渓">耶馬渓</option>
-        <option value="姫島">姫島</option>
-      </optgroup>
-      <optgroup label="🌃 福岡県">
-        <option value="糸島">糸島</option>
-        <option value="柳川">柳川</option>
-        <option value="平尾台">平尾台</option>
-      </optgroup>
-      <optgroup label="🦋 長崎県">
-        <option value="島原">島原</option>
-        <option value="平戸">平戸</option>
-        <option value="五島列島">五島列島</option>
-      </optgroup>
-      <optgroup label="🏯 佐賀県">
-        <option value="呼子">呼子</option>
-        <option value="武雄">武雄</option>
-        <option value="嬉野">嬉野</option>
-      </optgroup>
-      <optgroup label="✏️ その他">
-        <option value="__other__">自由に入力する…</option>
-      </optgroup>
-    </select>
+    <div class="dest-dropdown" id="destDropdown">
+      <button class="dest-dd-trigger" id="destTrigger" type="button" onclick="toggleDestDropdown()">
+        <span id="destTriggerText">目的地を追加する</span>
+        <span class="dest-dd-arrow">▾</span>
+      </button>
+      <div class="dest-dd-panel" id="destPanel">
+        <div class="dest-group">
+          <div class="dest-group-label">🏔️ 熊本県</div>
+          <label class="dest-option"><input type="checkbox" value="阿蘇" onchange="onDestCheck(this)"><span>阿蘇</span></label>
+          <label class="dest-option"><input type="checkbox" value="天草" onchange="onDestCheck(this)"><span>天草</span></label>
+          <label class="dest-option"><input type="checkbox" value="人吉" onchange="onDestCheck(this)"><span>人吉</span></label>
+          <label class="dest-option"><input type="checkbox" value="菊池渓谷" onchange="onDestCheck(this)"><span>菊池渓谷</span></label>
+        </div>
+        <div class="dest-group">
+          <div class="dest-group-label">🌋 鹿児島県</div>
+          <label class="dest-option"><input type="checkbox" value="指宿" onchange="onDestCheck(this)"><span>指宿</span></label>
+          <label class="dest-option"><input type="checkbox" value="霧島" onchange="onDestCheck(this)"><span>霧島</span></label>
+          <label class="dest-option"><input type="checkbox" value="桜島" onchange="onDestCheck(this)"><span>桜島</span></label>
+          <label class="dest-option"><input type="checkbox" value="知覧" onchange="onDestCheck(this)"><span>知覧</span></label>
+          <label class="dest-option"><input type="checkbox" value="佐多岬" onchange="onDestCheck(this)"><span>佐多岬</span></label>
+        </div>
+        <div class="dest-group">
+          <div class="dest-group-label">🌊 宮崎県</div>
+          <label class="dest-option"><input type="checkbox" value="高千穂" onchange="onDestCheck(this)"><span>高千穂</span></label>
+          <label class="dest-option"><input type="checkbox" value="日南海岸" onchange="onDestCheck(this)"><span>日南海岸</span></label>
+          <label class="dest-option"><input type="checkbox" value="青島" onchange="onDestCheck(this)"><span>青島</span></label>
+          <label class="dest-option"><input type="checkbox" value="えびの高原" onchange="onDestCheck(this)"><span>えびの高原</span></label>
+        </div>
+        <div class="dest-group">
+          <div class="dest-group-label">♨️ 大分県</div>
+          <label class="dest-option"><input type="checkbox" value="別府" onchange="onDestCheck(this)"><span>別府</span></label>
+          <label class="dest-option"><input type="checkbox" value="由布院" onchange="onDestCheck(this)"><span>由布院</span></label>
+          <label class="dest-option"><input type="checkbox" value="耶馬渓" onchange="onDestCheck(this)"><span>耶馬渓</span></label>
+          <label class="dest-option"><input type="checkbox" value="姫島" onchange="onDestCheck(this)"><span>姫島</span></label>
+        </div>
+        <div class="dest-group">
+          <div class="dest-group-label">🌃 福岡県</div>
+          <label class="dest-option"><input type="checkbox" value="糸島" onchange="onDestCheck(this)"><span>糸島</span></label>
+          <label class="dest-option"><input type="checkbox" value="柳川" onchange="onDestCheck(this)"><span>柳川</span></label>
+          <label class="dest-option"><input type="checkbox" value="平尾台" onchange="onDestCheck(this)"><span>平尾台</span></label>
+        </div>
+        <div class="dest-group">
+          <div class="dest-group-label">🦋 長崎県</div>
+          <label class="dest-option"><input type="checkbox" value="島原" onchange="onDestCheck(this)"><span>島原</span></label>
+          <label class="dest-option"><input type="checkbox" value="平戸" onchange="onDestCheck(this)"><span>平戸</span></label>
+          <label class="dest-option"><input type="checkbox" value="五島列島" onchange="onDestCheck(this)"><span>五島列島</span></label>
+        </div>
+        <div class="dest-group">
+          <div class="dest-group-label">🏯 佐賀県</div>
+          <label class="dest-option"><input type="checkbox" value="呼子" onchange="onDestCheck(this)"><span>呼子</span></label>
+          <label class="dest-option"><input type="checkbox" value="武雄" onchange="onDestCheck(this)"><span>武雄</span></label>
+          <label class="dest-option"><input type="checkbox" value="嬉野" onchange="onDestCheck(this)"><span>嬉野</span></label>
+        </div>
+        <div class="dest-group">
+          <div class="dest-group-label">✏️ その他（自由入力）</div>
+          <div class="dest-custom-inline">
+            <input type="text" id="destCustomInput" placeholder="目的地を入力…">
+            <button type="button" onclick="confirmCustomDest()">追加</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- 選択済みタグ -->
     <div class="dest-tags-wrap" id="destTagsWrap"></div>
-    <!-- カスタム入力（「その他」選択時に表示） -->
-    <div class="dest-custom-wrap" id="destCustomWrap">
-      <input class="dest-custom-input" type="text" id="destCustomInput"
-             placeholder="目的地を入力…（例：平戸島、五島列島）"
-             oninput="onDestCustomInput()">
-      <button class="dest-next-btn" id="destNextBtn" onclick="confirmCustomDest()">
-        追加 →
-      </button>
-    </div>
     <button class="dest-next-btn" id="destProceedBtn" onclick="goToStep3()">次へ →</button>
   </div>
 
@@ -1075,21 +1168,30 @@ function goToStep5() {
   showStep(5);
 }
 
-// 目的地プルダウン（複数選択）
+// 目的地カスタムドロップダウン（複数選択）
 function escHtml(s) {
   return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 }
 
-function onDestSelect(sel) {
-  const val = sel.value;
-  sel.value = '';
-  if (!val) return;
-  if (val === '__other__') {
-    document.getElementById('destCustomWrap').classList.add('show');
-    document.getElementById('destCustomInput').focus();
-    return;
+function toggleDestDropdown() {
+  document.getElementById('destDropdown').classList.toggle('open');
+}
+
+function closeDestDropdown() {
+  document.getElementById('destDropdown').classList.remove('open');
+}
+
+function onDestCheck(cb) {
+  cb.closest('.dest-option').classList.toggle('checked', cb.checked);
+  if (cb.checked) {
+    if (!state.dest.includes(cb.value)) {
+      state.dest.push(cb.value);
+      renderDestTags();
+    }
+  } else {
+    state.dest = state.dest.filter(v => v !== cb.value);
+    renderDestTags();
   }
-  addDestTag(val);
 }
 
 function addDestTag(value) {
@@ -1100,16 +1202,26 @@ function addDestTag(value) {
 
 function removeDestTag(btn) {
   const idx = +btn.dataset.idx;
+  const removed = state.dest[idx];
   state.dest.splice(idx, 1);
+  // 対応するチェックボックスを外す
+  document.querySelectorAll('#destPanel input[type="checkbox"]').forEach(cb => {
+    if (cb.value === removed) {
+      cb.checked = false;
+      cb.closest('.dest-option').classList.remove('checked');
+    }
+  });
   renderDestTags();
 }
 
 function renderDestTags() {
-  const wrap = document.getElementById('destTagsWrap');
+  const wrap    = document.getElementById('destTagsWrap');
   const proceed = document.getElementById('destProceedBtn');
-  const hasItems = state.dest.length > 0;
-  wrap.classList.toggle('show', hasItems);
-  proceed.classList.toggle('show', hasItems);
+  const label   = document.getElementById('destTriggerText');
+  const n = state.dest.length;
+  if (label) label.textContent = n > 0 ? `${n}件選択済み — さらに追加する` : '目的地を追加する';
+  wrap.classList.toggle('show', n > 0);
+  proceed.classList.toggle('show', n > 0);
   wrap.innerHTML = state.dest.map((v, i) =>
     `<span class="dest-tag">${escHtml(v)}<button class="dest-tag-remove" data-idx="${i}" onclick="removeDestTag(this)" aria-label="削除">×</button></span>`
   ).join('');
@@ -1118,29 +1230,21 @@ function renderDestTags() {
 function goToStep3() {
   if (state.dest.length === 0) return;
   goingBack = false;
+  closeDestDropdown();
   showStep(3);
 }
 
-function onDestCustomInput() {
-  const val = document.getElementById('destCustomInput').value.trim();
-  document.getElementById('destNextBtn').classList.toggle('show', val.length > 0);
-}
-
 function confirmCustomDest() {
-  const val = document.getElementById('destCustomInput').value.trim();
+  const input = document.getElementById('destCustomInput');
+  const val = input.value.trim();
   if (!val) return;
   addDestTag(val);
-  document.getElementById('destCustomInput').value = '';
-  document.getElementById('destCustomWrap').classList.remove('show');
-  document.getElementById('destNextBtn').classList.remove('show');
+  input.value = '';
 }
 
 function resetDestCustom() {
-  document.getElementById('destCustomWrap').classList.remove('show');
   document.getElementById('destCustomInput').value = '';
-  document.getElementById('destNextBtn').classList.remove('show');
-  const sel = document.getElementById('destSelect');
-  if (sel) sel.value = '';
+  closeDestDropdown();
 }
 
 function goBack() {
@@ -1170,10 +1274,14 @@ function showStep(n) {
   }
   currentStep = n;
 
-  // 戻ったときにSTEP2のタグ表示を復元
+  // 戻ったときにSTEP2のチェックボックス・タグを復元
   if (n === 2) {
+    document.querySelectorAll('#destPanel input[type="checkbox"]').forEach(cb => {
+      cb.checked = state.dest.includes(cb.value);
+      cb.closest('.dest-option').classList.toggle('checked', cb.checked);
+    });
     renderDestTags();
-    resetDestCustom();
+    closeDestDropdown();
   }
 
   updateProgress();
@@ -1226,6 +1334,10 @@ function restart() {
   Object.keys(state).forEach(k => { state[k] = (k === 'theme' || k === 'dest') ? [] : null; });
   document.querySelectorAll('.opt-btn.selected').forEach(b => b.classList.remove('selected'));
   document.getElementById('themeNextBtn').classList.remove('show');
+  document.querySelectorAll('#destPanel input[type="checkbox"]').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.dest-option').classList.remove('checked');
+  });
   renderDestTags();
   resetDestCustom();
   document.getElementById('stepFinal').classList.remove('active', 'go-back');
@@ -1336,6 +1448,12 @@ function showToast(msg) {
 // ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   updateProgress();
+
+  // ドロップダウン外クリックで閉じる
+  document.addEventListener('click', e => {
+    const dd = document.getElementById('destDropdown');
+    if (dd && !dd.contains(e.target)) closeDestDropdown();
+  });
 });
 </script>
 </body>
