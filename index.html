@@ -1796,7 +1796,14 @@ ${themeTxt}に関連した具体的なスポット（施設名・場所・おす
 このルートのアレンジ案や、時間が余った場合・足りない場合の調整方法
 
 ---
-最後に全経由地を含むルートのGoogleマップリンクをこの形式で出力してください（地点の順番を保持）：https://www.google.com/maps/dir/${depCoord}/${destCoords}`;
+${overnight ? `最後に以下のGoogleマップリンクを出力してください。
+
+全体ルート（参考）：https://www.google.com/maps/dir/${depCoord}/${destCoords}
+
+各日の移動区間ごとに、提案した宿泊地・目的地の名称を使って以下の形式でリンクを出力してください：
+- Day1: https://www.google.com/maps/dir/[出発地名]/[Day1の宿泊地名]
+- Day2: https://www.google.com/maps/dir/[Day1の宿泊地名]/[最終目的地名]
+（2泊3日の場合はDay3以降も同様に出力すること）` : `最後に全経由地を含むルートのGoogleマップリンクをこの形式で出力してください（地点の順番を保持）：https://www.google.com/maps/dir/${depCoord}/${destCoords}`}`;
 }
 
 // ─────────────────────────────────────────────
