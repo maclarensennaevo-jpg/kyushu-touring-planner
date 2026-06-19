@@ -721,6 +721,28 @@
       font-size: 14px;
     }
 
+    /* ── DEPARTURE 2-STAGE SELECT ── */
+    .dep-stage-wrap { display: flex; flex-direction: column; gap: 12px; }
+    .dep-stage-row { display: flex; align-items: center; gap: 10px; }
+    .dep-stage-num { font-size: 18px; font-weight: 700; color: var(--accent); flex-shrink: 0; width: 28px; text-align: center; }
+    .dep-stage-select {
+      flex: 1;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .dep-stage-select:focus { border-color: var(--accent); }
+    .dep-stage-select option { background: var(--bg2); }
+    .dep-stage-row .dest-custom-inline { flex: 1; }
+
     /* ── MOBILE ── */
     @media (max-width: 380px) {
       .opt-icon  { font-size: 28px; }
@@ -911,84 +933,36 @@
     <div class="step-tag">STEP 1</div>
     <h2 class="step-question">出発地を選ぶ</h2>
     <p class="step-sub">どこからツーリングをスタートしますか？</p>
-    <div class="dest-dropdown" id="depDropdown">
-      <button class="dest-dd-trigger" id="depTrigger" type="button" onclick="toggleDepDropdown()">
-        <span id="depTriggerText">出発地を選ぶ</span>
-        <span class="dest-dd-arrow">▾</span>
-      </button>
-      <div class="dest-dd-panel" id="depPanel">
-        <div class="dest-group">
-          <div class="dest-group-label">🌃 福岡県</div>
-          <button class="dep-option" data-name="福岡市" onclick="pickDep('福岡市','33.5902,130.4017',this)">福岡市（博多）</button>
-          <button class="dep-option" data-name="北九州市" onclick="pickDep('北九州市','33.8833,130.8752',this)">北九州市</button>
-          <button class="dep-option" data-name="久留米市" onclick="pickDep('久留米市','33.3192,130.5081',this)">久留米市</button>
-          <button class="dep-option" data-name="糸島市" onclick="pickDep('糸島市','33.5564,130.1975',this)">糸島市</button>
-          <button class="dep-option" data-name="飯塚市" onclick="pickDep('飯塚市','33.6458,130.6911',this)">飯塚市</button>
-          <button class="dep-option" data-name="柳川市" onclick="pickDep('柳川市','33.1625,130.4031',this)">柳川市</button>
-        </div>
-        <div class="dest-group">
-          <div class="dest-group-label">🏯 佐賀県</div>
-          <button class="dep-option" data-name="佐賀市" onclick="pickDep('佐賀市','33.2493,130.2988',this)">佐賀市</button>
-          <button class="dep-option" data-name="唐津市" onclick="pickDep('唐津市','33.4498,129.9686',this)">唐津市</button>
-          <button class="dep-option" data-name="武雄市" onclick="pickDep('武雄市','33.1927,130.0182',this)">武雄市</button>
-          <button class="dep-option" data-name="嬉野市" onclick="pickDep('嬉野市','33.1016,130.0540',this)">嬉野市</button>
-          <button class="dep-option" data-name="伊万里市" onclick="pickDep('伊万里市','33.2645,129.8805',this)">伊万里市</button>
-        </div>
-        <div class="dest-group">
-          <div class="dest-group-label">🦋 長崎県</div>
-          <button class="dep-option" data-name="長崎市" onclick="pickDep('長崎市','32.7503,129.8777',this)">長崎市</button>
-          <button class="dep-option" data-name="佐世保市" onclick="pickDep('佐世保市','33.1800,129.7147',this)">佐世保市</button>
-          <button class="dep-option" data-name="島原市" onclick="pickDep('島原市','32.7826,130.3672',this)">島原市</button>
-          <button class="dep-option" data-name="平戸市" onclick="pickDep('平戸市','33.3639,129.5536',this)">平戸市</button>
-          <button class="dep-option" data-name="諫早市" onclick="pickDep('諫早市','32.8406,130.0538',this)">諫早市</button>
-        </div>
-        <div class="dest-group">
-          <div class="dest-group-label">🏔️ 熊本県</div>
-          <button class="dep-option" data-name="熊本市" onclick="pickDep('熊本市','32.8031,130.7079',this)">熊本市</button>
-          <button class="dep-option" data-name="阿蘇市" onclick="pickDep('阿蘇市','32.8847,131.0897',this)">阿蘇市</button>
-          <button class="dep-option" data-name="天草市" onclick="pickDep('天草市','32.4625,130.1972',this)">天草市</button>
-          <button class="dep-option" data-name="人吉市" onclick="pickDep('人吉市','32.2140,130.7548',this)">人吉市</button>
-          <button class="dep-option" data-name="菊池市" onclick="pickDep('菊池市','32.9836,130.8160',this)">菊池市</button>
-          <button class="dep-option" data-name="山都町" onclick="pickDep('山都町','32.6628,131.0155',this)">山都町</button>
-        </div>
-        <div class="dest-group">
-          <div class="dest-group-label">♨️ 大分県</div>
-          <button class="dep-option" data-name="大分市" onclick="pickDep('大分市','33.2382,131.6126',this)">大分市</button>
-          <button class="dep-option" data-name="別府市" onclick="pickDep('別府市','33.2839,131.4913',this)">別府市</button>
-          <button class="dep-option" data-name="由布市" onclick="pickDep('由布市','33.2597,131.3726',this)">由布市</button>
-          <button class="dep-option" data-name="日田市" onclick="pickDep('日田市','33.3213,130.9417',this)">日田市</button>
-          <button class="dep-option" data-name="竹田市" onclick="pickDep('竹田市','32.9714,131.3966',this)">竹田市</button>
-          <button class="dep-option" data-name="玖珠町" onclick="pickDep('玖珠町','33.2722,131.1530',this)">玖珠町</button>
-        </div>
-        <div class="dest-group">
-          <div class="dest-group-label">🌊 宮崎県</div>
-          <button class="dep-option" data-name="宮崎市" onclick="pickDep('宮崎市','31.9077,131.4202',this)">宮崎市</button>
-          <button class="dep-option" data-name="延岡市" onclick="pickDep('延岡市','32.5819,131.6638',this)">延岡市</button>
-          <button class="dep-option" data-name="都城市" onclick="pickDep('都城市','31.7211,131.0644',this)">都城市</button>
-          <button class="dep-option" data-name="日南市" onclick="pickDep('日南市','31.3587,131.3809',this)">日南市</button>
-          <button class="dep-option" data-name="高千穂町" onclick="pickDep('高千穂町','32.7083,131.3064',this)">高千穂町</button>
-          <button class="dep-option" data-name="えびの市" onclick="pickDep('えびの市','31.9406,130.8291',this)">えびの市</button>
-        </div>
-        <div class="dest-group">
-          <div class="dest-group-label">🌋 鹿児島県</div>
-          <button class="dep-option" data-name="鹿児島市" onclick="pickDep('鹿児島市','31.5966,130.5571',this)">鹿児島市</button>
-          <button class="dep-option" data-name="霧島市" onclick="pickDep('霧島市','31.7412,130.7654',this)">霧島市</button>
-          <button class="dep-option" data-name="指宿市" onclick="pickDep('指宿市','31.2523,130.6378',this)">指宿市</button>
-          <button class="dep-option" data-name="南九州市" onclick="pickDep('南九州市','31.3739,130.4468',this)">南九州市（知覧）</button>
-          <button class="dep-option" data-name="薩摩川内市" onclick="pickDep('薩摩川内市','31.8159,130.3004',this)">薩摩川内市</button>
-          <button class="dep-option" data-name="垂水市" onclick="pickDep('垂水市','31.4940,130.7069',this)">垂水市</button>
-        </div>
-        <div class="dest-group">
-          <div class="dest-group-label">✏️ その他（自由入力）</div>
-          <div class="dest-custom-inline">
-            <input type="text" id="depCustomInput" placeholder="市町村名を入力…" onkeydown="if(event.key==='Enter')confirmCustomDep()">
-            <button type="button" id="depSearchBtn" onclick="confirmCustomDep()">検索</button>
-          </div>
+    <div class="dep-stage-wrap">
+      <div class="dep-stage-row">
+        <span class="dep-stage-num">①</span>
+        <select id="depPrefSelect" class="dep-stage-select" onchange="onDepPrefChange()">
+          <option value="">都道府県を選んでください</option>
+          <option value="福岡県">🌃 福岡県</option>
+          <option value="佐賀県">🏯 佐賀県</option>
+          <option value="長崎県">🦋 長崎県</option>
+          <option value="熊本県">🏔️ 熊本県</option>
+          <option value="大分県">♨️ 大分県</option>
+          <option value="宮崎県">🌊 宮崎県</option>
+          <option value="鹿児島県">🌋 鹿児島県</option>
+          <option value="other">✏️ その他（自由入力）</option>
+        </select>
+      </div>
+      <div class="dep-stage-row" id="depCityRow" style="display:none">
+        <span class="dep-stage-num">②</span>
+        <select id="depCitySelect" class="dep-stage-select" onchange="onDepCityChange()">
+          <option value="">市町村を選んでください</option>
+        </select>
+      </div>
+      <div class="dep-stage-row" id="depCustomRow" style="display:none">
+        <span class="dep-stage-num">②</span>
+        <div class="dest-custom-inline">
+          <input type="text" id="depCustomInput" placeholder="市町村名を入力…" onkeydown="if(event.key==='Enter')confirmCustomDep()">
+          <button type="button" id="depSearchBtn" onclick="confirmCustomDep()">検索</button>
         </div>
       </div>
     </div>
   </div>
-
   <!-- ===== STEP 2: 目的地 ===== -->
   <div class="step-card" id="step2">
     <div class="step-tag">STEP 2</div>
@@ -1413,6 +1387,63 @@ const DEP_COORDS = {
   '垂水市':    '31.4940,130.7069',
 };
 
+const DEP_BY_PREF = {
+  '福岡県': [
+    { label: '福岡市（博多）', name: '福岡市', coord: '33.5902,130.4017' },
+    { label: '北九州市', name: '北九州市', coord: '33.8833,130.8752' },
+    { label: '久留米市', name: '久留米市', coord: '33.3192,130.5081' },
+    { label: '糸島市', name: '糸島市', coord: '33.5564,130.1975' },
+    { label: '飯塚市', name: '飯塚市', coord: '33.6458,130.6911' },
+    { label: '柳川市', name: '柳川市', coord: '33.1625,130.4031' },
+  ],
+  '佐賀県': [
+    { label: '佐賀市', name: '佐賀市', coord: '33.2493,130.2988' },
+    { label: '唐津市', name: '唐津市', coord: '33.4498,129.9686' },
+    { label: '武雄市', name: '武雄市', coord: '33.1927,130.0182' },
+    { label: '嬉野市', name: '嬉野市', coord: '33.1016,130.0540' },
+    { label: '伊万里市', name: '伊万里市', coord: '33.2645,129.8805' },
+  ],
+  '長崎県': [
+    { label: '長崎市', name: '長崎市', coord: '32.7503,129.8777' },
+    { label: '佐世保市', name: '佐世保市', coord: '33.1800,129.7147' },
+    { label: '島原市', name: '島原市', coord: '32.7826,130.3672' },
+    { label: '平戸市', name: '平戸市', coord: '33.3639,129.5536' },
+    { label: '諫早市', name: '諫早市', coord: '32.8406,130.0538' },
+  ],
+  '熊本県': [
+    { label: '熊本市', name: '熊本市', coord: '32.8031,130.7079' },
+    { label: '阿蘇市', name: '阿蘇市', coord: '32.8847,131.0897' },
+    { label: '天草市', name: '天草市', coord: '32.4625,130.1972' },
+    { label: '人吉市', name: '人吉市', coord: '32.2140,130.7548' },
+    { label: '菊池市', name: '菊池市', coord: '32.9836,130.8160' },
+    { label: '山都町', name: '山都町', coord: '32.6628,131.0155' },
+  ],
+  '大分県': [
+    { label: '大分市', name: '大分市', coord: '33.2382,131.6126' },
+    { label: '別府市', name: '別府市', coord: '33.2839,131.4913' },
+    { label: '由布市', name: '由布市', coord: '33.2597,131.3726' },
+    { label: '日田市', name: '日田市', coord: '33.3213,130.9417' },
+    { label: '竹田市', name: '竹田市', coord: '32.9714,131.3966' },
+    { label: '玖珠町', name: '玖珠町', coord: '33.2722,131.1530' },
+  ],
+  '宮崎県': [
+    { label: '宮崎市', name: '宮崎市', coord: '31.9077,131.4202' },
+    { label: '延岡市', name: '延岡市', coord: '32.5819,131.6638' },
+    { label: '都城市', name: '都城市', coord: '31.7211,131.0644' },
+    { label: '日南市', name: '日南市', coord: '31.3587,131.3809' },
+    { label: '高千穂町', name: '高千穂町', coord: '32.7083,131.3064' },
+    { label: 'えびの市', name: 'えびの市', coord: '31.9406,130.8291' },
+  ],
+  '鹿児島県': [
+    { label: '鹿児島市', name: '鹿児島市', coord: '31.5966,130.5571' },
+    { label: '霧島市', name: '霧島市', coord: '31.7412,130.7654' },
+    { label: '指宿市', name: '指宿市', coord: '31.2523,130.6378' },
+    { label: '南九州市（知覧）', name: '南九州市', coord: '31.3739,130.4468' },
+    { label: '薩摩川内市', name: '薩摩川内市', coord: '31.8159,130.3004' },
+    { label: '垂水市', name: '垂水市', coord: '31.4940,130.7069' },
+  ],
+};
+
 // 目的地ごとの代表座標（Googleマップルートリンク用）
 const DEST_COORDS = {
   // 熊本県
@@ -1454,24 +1485,47 @@ const DEST_COORDS = {
 //  STEP NAVIGATION
 // ─────────────────────────────────────────────
 
-// ── 出発地ドロップダウン ──
-function toggleDepDropdown() {
-  document.getElementById('depDropdown').classList.toggle('open');
+// ── 出発地 2段階選択 ──
+function findPrefForDep(depName) {
+  for (const pref of Object.keys(DEP_BY_PREF)) {
+    if (DEP_BY_PREF[pref].some(c => c.name === depName)) return pref;
+  }
+  return 'other';
 }
 
-function closeDepDropdown() {
-  document.getElementById('depDropdown').classList.remove('open');
+function populateCitySelect(pref) {
+  const cityRow   = document.getElementById('depCityRow');
+  const customRow = document.getElementById('depCustomRow');
+  const citySel   = document.getElementById('depCitySelect');
+  if (!pref || pref === 'other') {
+    cityRow.style.display   = 'none';
+    customRow.style.display = pref === 'other' ? '' : 'none';
+    return;
+  }
+  const cities = DEP_BY_PREF[pref] || [];
+  citySel.innerHTML = '<option value="">市町村を選んでください</option>' +
+    cities.map(c => `<option value="${c.name}" data-coord="${c.coord}">${c.label}</option>`).join('');
+  customRow.style.display = 'none';
+  cityRow.style.display   = '';
 }
 
-function pickDep(name, coord, btn) {
-  state.dep = name;
+function onDepPrefChange() {
+  state.dep = null;
+  const pref = document.getElementById('depPrefSelect').value;
+  populateCitySelect(pref);
+  if (pref === 'other') document.getElementById('depCustomInput').value = '';
+}
+
+function onDepCityChange() {
+  const citySel = document.getElementById('depCitySelect');
+  const opt     = citySel.options[citySel.selectedIndex];
+  if (!opt || !opt.value) return;
+  pickDep(opt.value, opt.dataset.coord);
+}
+
+function pickDep(name, coord) {
+  state.dep        = name;
   DEP_COORDS[name] = coord;
-
-  document.getElementById('depTriggerText').textContent = name;
-  document.querySelectorAll('#depPanel .dep-option').forEach(b => b.classList.remove('selected'));
-  if (btn) btn.classList.add('selected');
-
-  closeDepDropdown();
   setTimeout(() => { goingBack = false; showStep(2); }, 300);
 }
 
@@ -1491,7 +1545,7 @@ async function confirmCustomDep() {
     const data = await res.json();
     if (data.length > 0) {
       const coord = `${parseFloat(data[0].lat).toFixed(4)},${parseFloat(data[0].lon).toFixed(4)}`;
-      pickDep(val, coord, null);
+      pickDep(val, coord);
       input.value = '';
     } else {
       showToast('場所が見つかりませんでした');
@@ -1503,7 +1557,6 @@ async function confirmCustomDep() {
     btn.disabled    = false;
   }
 }
-
 function pick(step, value, btn) {
   state[STEP_KEYS[step - 1]] = value;
 
@@ -1647,12 +1700,17 @@ function showStep(n) {
 
   // 戻ったときにSTEP1の出発地選択を復元
   if (n === 1) {
-    const label = document.getElementById('depTriggerText');
-    if (label) label.textContent = state.dep || '出発地を選ぶ';
-    document.querySelectorAll('#depPanel .dep-option').forEach(b => {
-      b.classList.toggle('selected', b.dataset.name === state.dep);
-    });
-    closeDepDropdown();
+    const pref    = state.dep ? findPrefForDep(state.dep) : '';
+    const prefSel = document.getElementById('depPrefSelect');
+    if (prefSel) {
+      prefSel.value = pref;
+      populateCitySelect(pref);
+      if (pref === 'other') {
+        document.getElementById('depCustomInput').value = state.dep || '';
+      } else if (pref) {
+        document.getElementById('depCitySelect').value = state.dep || '';
+      }
+    }
   }
 
   // 戻ったときにSTEP2のチェックボックス・タグを復元
@@ -1720,11 +1778,12 @@ function restart() {
   Object.keys(state).forEach(k => { state[k] = (k === 'theme' || k === 'dest') ? [] : null; });
   document.querySelectorAll('.opt-btn.selected').forEach(b => b.classList.remove('selected'));
   document.getElementById('themeNextBtn').classList.remove('show');
-  // 出発地ドロップダウンをリセット
-  document.getElementById('depTriggerText').textContent = '出発地を選ぶ';
-  document.querySelectorAll('#depPanel .dep-option').forEach(b => b.classList.remove('selected'));
+  // 出発地2段階選択をリセット
+  document.getElementById('depPrefSelect').value = '';
+  document.getElementById('depCityRow').style.display = 'none';
+  document.getElementById('depCustomRow').style.display = 'none';
+  document.getElementById('depCitySelect').innerHTML = '<option value="">市町村を選んでください</option>';
   document.getElementById('depCustomInput').value = '';
-  closeDepDropdown();
   document.querySelectorAll('#destPanel input[type="checkbox"]').forEach(cb => {
     cb.checked = false;
     cb.closest('.dest-option').classList.remove('checked');
@@ -1903,11 +1962,19 @@ function restoreFromURL() {
 
   if (dep) {
     state.dep = dep;
-    const trigger = document.getElementById('depTriggerText');
-    if (trigger) trigger.textContent = dep;
-    document.querySelectorAll('#depPanel .dep-option').forEach(b => {
-      b.classList.toggle('selected', b.dataset.name === dep);
-    });
+    const pref    = findPrefForDep(dep);
+    const prefSel = document.getElementById('depPrefSelect');
+    if (prefSel) {
+      prefSel.value = pref;
+      populateCitySelect(pref);
+      if (pref === 'other') {
+        const ci = document.getElementById('depCustomInput');
+        if (ci) ci.value = dep;
+      } else {
+        const cs = document.getElementById('depCitySelect');
+        if (cs) cs.value = dep;
+      }
+    }
   }
   if (dest.length) {
     state.dest = dest;
@@ -2029,8 +2096,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', e => {
     const dest = document.getElementById('destDropdown');
     if (dest && !dest.contains(e.target)) closeDestDropdown();
-    const dep = document.getElementById('depDropdown');
-    if (dep && !dep.contains(e.target)) closeDepDropdown();
   });
 });
 </script>
