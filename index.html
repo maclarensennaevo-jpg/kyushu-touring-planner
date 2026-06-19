@@ -1579,6 +1579,10 @@ function buildPrompt() {
   const destLabel  = dest.join(' → ');
   const destCoords = dest.map(d => DEST_COORDS[d] || d).join('/');
 
+  const dayGuide = overnight
+    ? '\n日程が複数日にわたるため、Day1、Day2（複数泊の場合はDay3以降も）に分けて、各日ごとに行程・立ち寄りスポット・宿泊地を出力してください。\n'
+    : '';
+
   return `九州のバイクツーリングに精通した専門ガイドとして、以下の条件で詳細なツーリングプランを作成してください。実在する道路名・施設名・スポット名を具体的に挙げてください。
 
 【ツーリング条件】
@@ -1588,7 +1592,7 @@ function buildPrompt() {
 - テーマ: ${themeTxt}
 - 走行距離感: ${distance}
 - 同行スタイル: ${party}
-
+${dayGuide}
 以下の構成でプランを作成してください：
 
 ## 🗺️ ルート概要
