@@ -1978,13 +1978,17 @@ function renderHotelLinks() {
   const overnight = state.schedule && state.schedule !== '日帰り';
   if (!overnight || state.dest.length === 0) { wrap.style.display = 'none'; return; }
   list.innerHTML = state.dest.map(d => {
-    const q = encodeURIComponent(d);
-    const jalanURL   = `https://www.jalan.net/uw/uwp2011/uww2011init.do?keyword=${q}`;
-    const rakutenURL = `https://travel.rakuten.co.jp/yado/search/?f_flg=NEW&f_keyword=${q}`;
+    // URL + searchParams でUTF-8エンコードを自動処理し、escHtml で & を &amp; に変換して
+    // innerHTML の href 属性として正しいHTMLにする
+    const jalan = new URL('https://www.jalan.net/uw/uwp2011/uww2011init.do');
+    jalan.searchParams.set('keyword', d);
+    const rakuten = new URL('https://travel.rakuten.co.jp/yado/search/');
+    rakuten.searchParams.set('f_flg', 'NEW');
+    rakuten.searchParams.set('f_keyword', d);
     return `<div class="hotel-dest-row">
       <span class="hotel-dest-name">📍 ${escHtml(d)}</span>
-      <a class="btn-hotel-link" href="${jalanURL}" target="_blank" rel="noopener">じゃらん</a>
-      <a class="btn-hotel-link btn-rakuten" href="${rakutenURL}" target="_blank" rel="noopener">楽天トラベル</a>
+      <a class="btn-hotel-link" href="${escHtml(jalan.toString())}" target="_blank" rel="noopener">じゃらん</a>
+      <a class="btn-hotel-link btn-rakuten" href="${escHtml(rakuten.toString())}" target="_blank" rel="noopener">楽天トラベル</a>
     </div>`;
   }).join('');
   wrap.style.display = '';
